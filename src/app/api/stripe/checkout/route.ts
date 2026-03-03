@@ -29,15 +29,22 @@ export async function POST(req: NextRequest) {
     let stripeCustomerId = user?.stripe_customer_id;
 
     if (!stripeCustomerId) {
-      const { data: clerkUser } = await db
+      // Obtener email desde Clerk si el usuario no existe aún en Supabase
+      const { clerkClient } = await import("@clerk/nextjs/server");
+      const clerkUser = await (await clerkClient()).users.getUser(userId);
+      const email =
+        clerkUser.emailAddresses.find(
+          (e) => e.id === clerkUser.primaryEmailAddressId
+        )?.emailAddress ?? clerkUser.emailAddresses[0]?.emailAddress;
+
+      // Upsert: crea el usuario si no existe (por si el webhook de Clerk tardó)
+      await db
         .from("users")
-        .select("email")
-        .eq("id", userId)
-        .single();
+        .upsert({ id: userId, email: email ?? "" }, { onConflict: "id" });
 
       const customer = await getStripe().customers.create({
         metadata: { clerk_user_id: userId },
-        email: clerkUser?.email,
+        email: email,
       });
       stripeCustomerId = customer.id;
 
