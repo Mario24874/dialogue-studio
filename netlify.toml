@@ -1,0 +1,36 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Webhook de Stripe: sin caché
+[[headers]]
+  for = "/api/stripe/webhook"
+  [headers.values]
+    Cache-Control = "no-store"
+
+# Redirigir rutas de Clerk
+[[redirects]]
+  from = "/sign-in"
+  to = "/sign-in"
+  status = 200
+
+[[redirects]]
+  from = "/sign-up"
+  to = "/sign-up"
+  status = 200

@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Capacitor
+/android
+/ios
+/dist
+
+# Netlify
+.netlify
+
+# Italianto App (proyecto separado, no incluir en este repo)
+/ItaliantoApp

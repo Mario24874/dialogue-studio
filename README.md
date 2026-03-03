@@ -1,36 +1,212 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎭 Dialogue Studio
 
-## Getting Started
+Una aplicación web moderna construida con **Next.js 15** que convierte guiones de texto en audio usando **ElevenLabs AI** y una interfaz elegante con **MagicUI**.
 
-First, run the development server:
+![Built with Next.js](https://img.shields.io/badge/Next.js-15.4.7-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![ElevenLabs](https://img.shields.io/badge/ElevenLabs-API-purple)
+![MagicUI](https://img.shields.io/badge/MagicUI-Components-pink)
+![Tailwind](https://img.shields.io/badge/Tailwind-CSS-cyan)
+
+## ✨ Características
+
+- **🎤 Generación de Audio Realista**: Utiliza ElevenLabs AI para voces naturales
+- **👥 Soporte Multi-Personajes**: Diferentes voces para personajes masculinos y femeninos
+- **🎨 Interfaz Moderna**: Componentes animados con MagicUI y Tailwind CSS
+- **📱 Totalmente Responsiva**: Diseño adaptativo para todos los dispositivos
+- **⚡ Tiempo Real**: Progreso animado durante la generación
+- **🌙 Dark/Light Mode**: Soporte para temas claro y oscuro
+- **📄 Carga de Archivos**: Sube archivos .txt o .md con tus guiones
+
+## 🚀 Inicio Rápido
+
+### Prerrequisitos
+
+- Node.js 18+ 
+- npm, yarn, pnpm o bun
+- Cuenta de [ElevenLabs](https://elevenlabs.io/) con API key
+
+### 1. Clona el repositorio
+
+```bash
+git clone <tu-repo-url>
+cd dialogue-studio
+```
+
+### 2. Instala dependencias
+
+```bash
+npm install
+# o
+yarn install
+# o
+pnpm install
+# o
+bun install
+```
+
+### 3. Configura variables de entorno
+
+Crea un archivo `.env.local` en la raíz del proyecto:
+
+```env
+# ElevenLabs API Configuration
+ELEVENLABS_API_KEY=tu_api_key_aqui
+ELEVENLABS_API_URL=https://api.elevenlabs.io/v1
+ELEVENLABS_VOICE_STABILITY=0.5
+ELEVENLABS_VOICE_SIMILARITY_BOOST=0.75
+ELEVENLABS_VOICE_STYLE=0.0
+ELEVENLABS_VOICE_USE_SPEAKER_BOOST=true
+```
+
+### 4. Inicia el servidor de desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📖 Uso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Formato de Guión
 
-## Learn More
+Usa el siguiente formato en tus guiones:
 
-To learn more about Next.js, take a look at the following resources:
+```
+Personaje (M/F): Diálogo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ejemplo:
+Ana (F): ¡Hola! ¿Cómo estás hoy?
+Carlos (M): Muy bien, gracias por preguntar. ¿Y tú?
+Ana (F): Excelente, tengo muchas cosas que contarte.
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **M** = Voz masculina (Adam)
+- **F** = Voz femenina (Bella)
 
-## Deploy on Vercel
+### Carga de Archivos
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Soporta archivos `.txt` y `.md` con el formato de guión especificado.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🏗️ Arquitectura
+
+### Stack Tecnológico
+
+- **Frontend**: Next.js 15 + React 19
+- **Styling**: Tailwind CSS + MagicUI Components
+- **Animaciones**: Framer Motion
+- **Audio**: ElevenLabs Text-to-Speech API
+- **TypeScript**: Tipado completo
+
+### Estructura de Proyecto
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── generate-audio/
+│   │       └── route.ts        # API endpoint ElevenLabs
+│   ├── layout.tsx              # Layout principal
+│   ├── page.tsx                # Página principal
+│   └── globals.css             # Estilos globales
+├── components/
+│   └── magicui/                # Componentes MagicUI
+│       ├── magic-card.tsx
+│       ├── rainbow-button.tsx
+│       ├── shimmer-button.tsx
+│       ├── animated-circular-progress-bar.tsx
+│       └── hyper-text.tsx
+└── lib/
+    └── utils.ts                # Utilidades
+```
+
+## 🛠️ Scripts Disponibles
+
+```bash
+npm run dev      # Servidor de desarrollo
+npm run build    # Build de producción
+npm run start    # Servidor de producción
+npm run lint     # Linter ESLint
+```
+
+## 🎨 Componentes MagicUI
+
+### MagicCard
+Tarjeta con efecto spotlight que sigue el cursor.
+
+### RainbowButton
+Botón con gradiente animado y efectos de hover.
+
+### ShimmerButton
+Botón con efecto shimmer sutil.
+
+### AnimatedCircularProgressBar
+Barra de progreso circular con animaciones.
+
+### HyperText
+Texto con efecto de scramble/reveal animado.
+
+## 🔧 Configuración
+
+### Voces ElevenLabs
+
+Por defecto se usan estas voces:
+- **Masculina**: Adam (`pNInz6obpgDQGcFmaJgB`)
+- **Femenina**: Bella (`EXAVITQu4vr4xnSDxMaL`)
+
+Puedes cambiarlas en `src/app/api/generate-audio/route.ts`.
+
+### Personalización de Tema
+
+Modifica las variables CSS en `src/app/globals.css` para personalizar colores y temas.
+
+## 📚 Documentación Detallada
+
+Consulta `PROJECT_CONTEXT.md` para documentación técnica completa, incluyendo:
+- Registro detallado de cambios
+- Problemas conocidos y soluciones
+- Guías para desarrolladores
+- Arquitectura técnica
+
+## 🚀 Deploy
+
+### Vercel (Recomendado)
+
+1. Conecta tu repositorio a [Vercel](https://vercel.com)
+2. Configura las variables de entorno en Vercel
+3. Deploy automático con cada push
+
+### Variables de Entorno para Producción
+
+Asegúrate de configurar estas variables en tu plataforma de deploy:
+
+```
+ELEVENLABS_API_KEY=tu_api_key_real
+ELEVENLABS_API_URL=https://api.elevenlabs.io/v1
+```
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crea una rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+6. **IMPORTANTE**: Actualiza `PROJECT_CONTEXT.md` con tus cambios
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
+
+## 💡 Soporte
+
+Si tienes problemas o preguntas:
+
+1. Revisa `PROJECT_CONTEXT.md` para soluciones comunes
+2. Abre un issue en GitHub
+3. Consulta la [documentación de ElevenLabs](https://docs.elevenlabs.io/)
+
+---
+
+**Desarrollado con ❤️ usando Next.js, ElevenLabs AI y MagicUI**
