@@ -18,51 +18,14 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
   return !!data;
 }
 
-// ─── MODO MOCK: respuesta de prueba sin consumir API de Claude ───────────────
-// Activo cuando TRANSLATION_MODE=mock en .env.local
-// Genera líneas alternando entre los personajes con frases italianas de ejemplo
-function buildMockResponse(characters: Character[], text: string) {
-  const inputLines = text
-    .split("\n")
-    .map(l => l.trim())
-    .filter(Boolean);
-
-  const mockPhrases = [
-    "Buongiorno! Come stai oggi?",
-    "Molto bene, grazie! E tu?",
-    "Benissimo. Andiamo al bar a prendere un caffè?",
-    "Sì, volentieri! Ho bisogno di un caffè.",
-    "Perfetto. Conosco un posto ottimo qui vicino.",
-    "Ottima idea! Ci andiamo subito.",
-    "Hai già fatto colazione stamattina?",
-    "No, non ancora. Prenderò un cornetto.",
-    "Anch'io. Mi piacciono molto i cornetti alla crema.",
-    "Sì, sono deliziosi! Andiamo.",
-  ];
-
-  const lines = inputLines.map((_, i) => ({
-    name: characters[i % characters.length].name,
-    text: mockPhrases[i % mockPhrases.length],
-  }));
-
-  return { lines };
-}
-
-// ─── MODO LIVE: traducción real con Claude Haiku ─────────────────────────────
-async function translateWithClaude(
-  text: string,
-  sourceLang: string,
-  characters: Character[]
-) {
-  const Anthropic = (await import("@anthropic-ai/sdk")).default;
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
+// Prompt compartido por ambos proveedores
+function buildPrompt(text: string, sourceLang: string, characters: Character[]): string {
   const langName = sourceLang === "es" ? "español" : "inglés";
   const charList = characters
     .map((c, i) => `${String.fromCharCode(65 + i)}: ${c.name}`)
     .join(", ");
 
-  const prompt = `Eres un experto en traducción al italiano natural y coloquial.
+  return `Eres un experto en traducción al italiano natural y coloquial.
 
 El siguiente diálogo está en ${langName}. Tradúcelo al italiano natural, manteniendo el tono conversacional.
 
@@ -85,17 +48,11 @@ INSTRUCCIONES IMPORTANTES:
 }
 5. NO incluyas explicaciones, comentarios ni nada fuera del JSON.
 6. El italiano debe ser natural, como hablaría un nativo.`;
+}
 
-  const message = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 2048,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const rawContent = message.content[0].type === "text" ? message.content[0].text : "";
-  const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+function parseTranslationJson(raw: string) {
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error("La IA no devolvió un formato válido. Intenta de nuevo.");
-
   const parsed = JSON.parse(jsonMatch[0]);
   if (!parsed.lines || !Array.isArray(parsed.lines) || parsed.lines.length === 0) {
     throw new Error("No se encontraron líneas de diálogo en la traducción.");
@@ -103,7 +60,70 @@ INSTRUCCIONES IMPORTANTES:
   return parsed;
 }
 
+// ─── PROVEEDOR: Gemini (actual — capa gratuita) ───────────────────────────────
+async function translateWithGemini(
+  text: string,
+  sourceLang: string,
+  characters: Character[]
+) {
+  const { GoogleGenerativeAI } = await import("@google/generative-ai");
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const prompt = buildPrompt(text, sourceLang, characters);
+  const result = await model.generateContent(prompt);
+  const raw = result.response.text();
+  return parseTranslationJson(raw);
+}
+
+// ─── PROVEEDOR: Claude Haiku (futuro — producción en VPS) ────────────────────
+async function translateWithClaude(
+  text: string,
+  sourceLang: string,
+  characters: Character[]
+) {
+  const Anthropic = (await import("@anthropic-ai/sdk")).default;
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  const prompt = buildPrompt(text, sourceLang, characters);
+  const message = await anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 2048,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const rawContent = message.content[0].type === "text" ? message.content[0].text : "";
+  return parseTranslationJson(rawContent);
+}
+
+// ─── MODO MOCK: pruebas sin consumir APIs ─────────────────────────────────────
+function buildMockResponse(characters: Character[], text: string) {
+  const inputLines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const mockPhrases = [
+    "Buongiorno! Come stai oggi?",
+    "Molto bene, grazie! E tu?",
+    "Benissimo. Andiamo al bar a prendere un caffè?",
+    "Sì, volentieri! Ho bisogno di un caffè.",
+    "Perfetto. Conosco un posto ottimo qui vicino.",
+    "Ottima idea! Ci andiamo subito.",
+    "Hai già fatto colazione stamattina?",
+    "No, non ancora. Prenderò un cornetto.",
+    "Anch'io. Mi piacciono molto i cornetti alla crema.",
+    "Sì, sono deliziosi! Andiamo.",
+  ];
+  return {
+    lines: inputLines.map((_, i) => ({
+      name: characters[i % characters.length].name,
+      text: mockPhrases[i % mockPhrases.length],
+    })),
+  };
+}
+
 // ─── Handler principal ────────────────────────────────────────────────────────
+// Proveedor activo según env vars disponibles:
+//   GEMINI_API_KEY       → Gemini 2.0 Flash (gratuito, actual)
+//   ANTHROPIC_API_KEY    → Claude Haiku (producción futura en VPS)
+//   TRANSLATION_MODE=mock → respuestas mock sin consumir API
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -132,16 +152,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Se necesitan al menos 2 personajes" }, { status: 400 });
     }
 
-    const isMock = process.env.TRANSLATION_MODE === "mock";
+    let result;
+    if (process.env.TRANSLATION_MODE === "mock") {
+      result = buildMockResponse(characters, text);
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      result = await translateWithClaude(text, sourceLang, characters);
+    } else if (process.env.GEMINI_API_KEY) {
+      result = await translateWithGemini(text, sourceLang, characters);
+    } else {
+      return NextResponse.json(
+        { error: "No hay proveedor de traducción configurado (GEMINI_API_KEY o ANTHROPIC_API_KEY)." },
+        { status: 500 }
+      );
+    }
 
-    const result = isMock
-      ? buildMockResponse(characters, text)
-      : await translateWithClaude(text, sourceLang, characters);
-
-    return NextResponse.json({
-      lines: result.lines,
-      ...(isMock && { _mock: true }), // indica en la respuesta que es mock
-    });
+    return NextResponse.json({ lines: result.lines });
 
   } catch (error: unknown) {
     console.error("Translate API error:", error);
