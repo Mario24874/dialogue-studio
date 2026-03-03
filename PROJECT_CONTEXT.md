@@ -486,23 +486,86 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 
 ---
 
+### [2026-03-03] — Claude Code Agent — Fix build Netlify
+
+**Sesión 4: Corrección de errores de build y deploy**
+
+**Errores ESLint (bloqueaban compilación):**
+- `@typescript-eslint/no-explicit-any` → reemplazado por `error: unknown` con `instanceof Error` en todos los catch blocks
+- `prefer-const` → `let { data: user }` → `const` en stripe/checkout
+- `react/no-unescaped-entities` → comillas `"texto"` → `&ldquo;texto&rdquo;` en privacy, terms, studio
+- `react/display-name` → `// eslint-disable-next-line` en stubs de Clerk (header, studio)
+- Imports no usados eliminados: `Mic`, `User`, `router`, `Icon`, `NextRequest`
+
+**Errores de build — SDK initialization eagerly:**
+
+El error `supabaseUrl is required` y `Neither apiKey nor config.authenticator provided` ocurrían porque Next.js evalúa los módulos durante la fase *"Collecting page data"* del build, ejecutando código a nivel de módulo sin las env vars disponibles.
+
+- `supabase.ts`: eliminado `export const supabase = createClient(...)` a nivel de módulo → reemplazado por `createBrowserClient()` lazy
+- `stripe.ts`: eliminado `export const stripe = new Stripe(...)` a nivel de módulo → reemplazado por `getStripe()` lazy singleton
+- Rutas que usaban `stripe.*` → actualizadas a `getStripe().*`
+- Todas las rutas API: agregado `export const dynamic = "force-dynamic"` como protección adicional
+
+**Error de seguridad — CVE-2025-55182:**
+
+Netlify bloqueó el deploy porque Next.js 15.4.7 tiene una vulnerabilidad crítica.
+- `next`: `15.4.7` → `15.4.11` (primer patch seguro de la rama 15.4.x)
+- `eslint-config-next`: `15.4.7` → `15.4.11` (debe coincidir con Next.js)
+- `package-lock.json` actualizado desde filesystem Linux nativo (workaround para WSL2 EACCES en `@next/swc-linux-x64-gnu`)
+
+**Commits de esta sesión:**
+- `23aefd8` — docs: PROJECT_CONTEXT.md documentación completa
+- `779fe64` — fix: errores ESLint
+- `51cad8a` — fix: Supabase lazy (supabaseUrl is required)
+- `cccd93d` — fix: Stripe lazy + force-dynamic (Neither apiKey nor config.authenticator)
+- `c05c539` — fix: Next.js 15.4.11 CVE-2025-55182
+
+**Estado final: ✅ Build exitoso + Deploy exitoso en Netlify**
+
+---
+
 ## ⏭️ Próximos Pasos
 
-### Para activar la app completa (en orden)
-1. **Clerk** → crear app en dashboard.clerk.com → copiar 2 keys → agregar a `.env.local`
-2. **Supabase** → crear proyecto → ejecutar `supabase/schema.sql` → copiar 3 keys → agregar a `.env.local`
-3. **Stripe** → crear producto $4.99/mes → copiar price ID y keys → agregar a `.env.local`
-4. **Restaurar middleware** → descomentar el bloque de Clerk en `src/middleware.ts`
-5. **Probar flujo completo** con `TRANSLATION_MODE=mock` y tarjeta de prueba Stripe `4242 4242 4242 4242`
-6. **Deploy en Netlify** → conectar GitHub → configurar env vars → obtener URL
-7. **Actualizar** `capacitor.config.ts` con URL real de Netlify
-8. **Generar APK** con Android Studio
-9. **Activar Claude** → obtener API key → cambiar `TRANSLATION_MODE=live`
+### Inmediato — Configurar credenciales de producción
+1. **Clerk** → crear app en dashboard.clerk.com → copiar 2 keys → agregar a Netlify env vars y `.env.local`
+2. **Supabase** → crear proyecto → ejecutar `supabase/schema.sql` → copiar 3 keys
+3. **Stripe** → crear producto $4.99/mes → copiar price ID y 3 keys → configurar webhook
+4. **Restaurar middleware Clerk** → descomentar bloque en `src/middleware.ts`
+5. **ElevenLabs** → obtener API key → agregar a Netlify env vars
+6. **Probar flujo completo** con `TRANSLATION_MODE=mock` + tarjeta Stripe `4242 4242 4242 4242`
+7. **Activar Claude** → API key → cambiar `TRANSLATION_MODE=live`
+8. **Capacitor** → actualizar URL en `capacitor.config.ts` → generar APK
 
-### Mejoras futuras identificadas
-- Historial de diálogos generados (tabla `dialogues` ya está en el schema)
-- Panel de usuario (ver/gestionar suscripción, historial)
-- Stripe Customer Portal para que el usuario cancele/cambie plan
-- Preview de voces en el CharacterBuilder (botón para escuchar muestra)
-- Descarga del diálogo escrito en PDF o TXT
-- Subir a Amazon App Store y Google Play (requiere cuentas de desarrollador)
+### Próxima sesión — Nuevas funcionalidades planificadas
+| Funcionalidad | Descripción | Prioridad |
+|--------------|-------------|-----------|
+| **Selector de idioma de UI** | Cambiar la interfaz entre Español / Italiano / Inglés (i18n) | Alta |
+| **Límites de generación** | Replanteamiento del sistema de cuotas (diálogos/mes según plan) | Alta |
+| **Planes múltiples** | Ej: Básico (50 diálogos/mes), Pro (ilimitado), Anual | Alta |
+| **Sistema de cupones** | Códigos de descuento via Stripe Promotions | Media |
+| **Modo oscuro** | Dark mode con Tailwind v4 + persistencia en localStorage | Media |
+| **Configuración de perfil** | Nombre, avatar, idioma preferido, plan actual, historial | Media |
+| **Historial de diálogos** | Tabla `dialogues` ya existe en Supabase, falta UI | Media |
+| **Stripe Customer Portal** | Portal para gestionar/cancelar suscripción | Media |
+| **Preview de voces** | Botón para escuchar muestra de cada voz ElevenLabs | Baja |
+| **Descarga PDF/TXT** | Exportar diálogo escrito en múltiples formatos | Baja |
+| **Amazon App Store** | Publicar APK en tienda Amazon | Baja |
+
+### Notas de arquitectura para próximas features
+
+**i18n (selector de idioma):**
+- Usar `next-intl` o `react-i18next` con detección automática del navegador
+- Guardar preferencia en Supabase `users.preferred_language`
+- 3 idiomas: `es` (default), `it`, `en`
+- Las traducciones de la UI en archivos `messages/es.json`, `messages/it.json`, `messages/en.json`
+
+**Planes múltiples:**
+- Crear 3 prices en Stripe (mensual Básico, mensual Pro, anual Pro)
+- Agregar campo `plan_type` y `dialogues_used_this_month` en tabla `subscriptions`
+- Reset del contador el 1 de cada mes (cron job en Netlify o Supabase Edge Function)
+- Middleware que verifica cuota antes de permitir generación
+
+**Modo oscuro:**
+- Tailwind v4 soporta dark mode con `@variant dark { ... }` en globals.css
+- Usar `data-theme` attribute en `<html>` + localStorage para persistencia
+- Toggle en el header y en configuración de perfil
