@@ -133,7 +133,16 @@
   },
 
   "subscribe": {
-    "title": "Attiva il tuo abbonamento per generare dialoghi in italiano",
+    "title": "Scegli il tuo piano per generare dialoghi in italiano",
+    "planMonthly": "Mensile",
+    "planAnnual": "Annuale",
+    "savingsBadge": "Risparmia 83%",
+    "priceMonthly": "$4.99",
+    "periodMonthly": "/mese",
+    "priceAnnual": "$9.99",
+    "periodAnnual": "/anno",
+    "cancelMonthly": "Cancella quando vuoi",
+    "cancelAnnual": "Un unico pagamento annuale",
     "period": "/mese",
     "cancel": "Cancella quando vuoi",
     "features": [
@@ -154,8 +163,15 @@
   },
 
   "pricing": {
-    "title": "Prezzo semplice e trasparente",
-    "subtitle": "Senza livelli confusi. Accesso completo a un prezzo fisso.",
+    "title": "Piani semplici e trasparenti",
+    "subtitle": "Senza livelli confusi. Accesso completo al tuo ritmo.",
+    "planMonthly": "Mensile",
+    "planAnnual": "Annuale",
+    "savingsBadge": "Risparmia 83%",
+    "priceMonthly": "$4.99",
+    "periodMonthly": "/ mese",
+    "priceAnnual": "$9.99",
+    "periodAnnual": "/ anno",
     "period": "/ mese",
     "cancel": "Cancella quando vuoi. Senza vincoli.",
     "features": [

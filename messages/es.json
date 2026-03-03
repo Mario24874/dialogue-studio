@@ -133,9 +133,16 @@
   },
 
   "subscribe": {
-    "title": "Activa tu suscripción para generar diálogos en italiano",
-    "period": "/mes",
-    "cancel": "Cancela cuando quieras",
+    "title": "Elige tu plan para generar diálogos en italiano",
+    "planMonthly": "Mensual",
+    "planAnnual": "Anual",
+    "savingsBadge": "Ahorra 83%",
+    "priceMonthly": "$4.99",
+    "periodMonthly": "/mes",
+    "priceAnnual": "$9.99",
+    "periodAnnual": "/año",
+    "cancelMonthly": "Cancela cuando quieras",
+    "cancelAnnual": "Un solo pago anual",
     "features": [
       "Traducción automática al italiano con IA",
       "Diálogos escritos con formato profesional",
@@ -154,8 +161,15 @@
   },
 
   "pricing": {
-    "title": "Precio simple y transparente",
-    "subtitle": "Sin niveles confusos. Acceso completo por un precio fijo.",
+    "title": "Planes simples y transparentes",
+    "subtitle": "Sin niveles confusos. Acceso completo a tu ritmo.",
+    "planMonthly": "Mensual",
+    "planAnnual": "Anual",
+    "savingsBadge": "Ahorra 83%",
+    "priceMonthly": "$4.99",
+    "periodMonthly": "/ mes",
+    "priceAnnual": "$9.99",
+    "periodAnnual": "/ año",
     "period": "/ mes",
     "cancel": "Cancela cuando quieras. Sin permanencia.",
     "features": [

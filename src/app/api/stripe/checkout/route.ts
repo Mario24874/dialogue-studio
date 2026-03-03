@@ -1,16 +1,21 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import { getStripe, STRIPE_PRICE_ID, APP_URL } from "@/lib/stripe";
+import { NextRequest, NextResponse } from "next/server";
+import { getStripe, STRIPE_PRICE_MONTHLY, STRIPE_PRICE_ANNUAL, APP_URL } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
+
+    // Leer plan elegido por el usuario ("monthly" | "annual"), default monthly
+    const body = await req.json().catch(() => ({}));
+    const plan: "monthly" | "annual" = body.plan === "annual" ? "annual" : "monthly";
+    const priceId = plan === "annual" ? STRIPE_PRICE_ANNUAL : STRIPE_PRICE_MONTHLY;
 
     const db = createServiceClient();
 
@@ -23,7 +28,6 @@ export async function POST() {
 
     let stripeCustomerId = user?.stripe_customer_id;
 
-    // Si no tiene customer en Stripe, crearlo
     if (!stripeCustomerId) {
       const { data: clerkUser } = await db
         .from("users")
@@ -47,13 +51,12 @@ export async function POST() {
       customer: stripeCustomerId,
       payment_method_types: ["card"],
       mode: "subscription",
-      line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${APP_URL}/studio?subscribed=true`,
       cancel_url: `${APP_URL}/pricing?canceled=true`,
-      // clerk_user_id en metadata de la sesión (disponible en webhook)
-      metadata: { clerk_user_id: userId },
+      metadata: { clerk_user_id: userId, plan },
       subscription_data: {
-        metadata: { clerk_user_id: userId },
+        metadata: { clerk_user_id: userId, plan },
       },
       allow_promotion_codes: true,
       billing_address_collection: "auto",

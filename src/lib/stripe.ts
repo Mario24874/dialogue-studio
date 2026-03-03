@@ -1,7 +1,10 @@
 import Stripe from "stripe";
 
-export const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID!;
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+// IDs de precio por plan
+export const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_ID_MONTHLY!;
+export const STRIPE_PRICE_ANNUAL = process.env.STRIPE_PRICE_ID_ANNUAL!;
 
 // Lazy singleton — no instanciar al importar el módulo (falla en build sin env vars)
 let _stripe: Stripe | undefined;

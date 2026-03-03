@@ -1,12 +1,15 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2, Sparkles, Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+
+type Plan = "monthly" | "annual";
 
 export default function SubscribePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [plan, setPlan] = useState<Plan>("annual");
   const { t, tArray } = useLanguage();
   const features = tArray("subscribe.features");
 
@@ -14,7 +17,11 @@ export default function SubscribePage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
@@ -27,6 +34,8 @@ export default function SubscribePage() {
       setLoading(false);
     }
   };
+
+  const isAnnual = plan === "annual";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-italianto-50 via-white to-italianto-50 flex items-center justify-center px-4 py-12">
@@ -41,6 +50,33 @@ export default function SubscribePage() {
           <p className="text-gray-600">{t("subscribe.title")}</p>
         </div>
 
+        {/* Selector de plan */}
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+          <button
+            onClick={() => setPlan("monthly")}
+            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+              !isAnnual
+                ? "bg-white text-italianto-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {t("subscribe.planMonthly")}
+          </button>
+          <button
+            onClick={() => setPlan("annual")}
+            className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
+              isAnnual
+                ? "bg-white text-italianto-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {t("subscribe.planAnnual")}
+            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-italianto-100 text-italianto-800 rounded-full">
+              {t("subscribe.savingsBadge")}
+            </span>
+          </button>
+        </div>
+
         {/* Card de precio */}
         <div className="bg-white rounded-2xl shadow-italianto-lg border border-italianto-100 overflow-hidden">
           <div className="h-2 w-full" style={{background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)"}} />
@@ -48,10 +84,22 @@ export default function SubscribePage() {
           <div className="p-8">
             <div className="text-center mb-6">
               <div className="inline-flex items-baseline gap-1">
-                <span className="text-5xl font-bold text-italianto-800">$4.99</span>
-                <span className="text-gray-500 text-lg">{t("subscribe.period")}</span>
+                <span className="text-5xl font-bold text-italianto-800">
+                  {isAnnual ? t("subscribe.priceAnnual") : t("subscribe.priceMonthly")}
+                </span>
+                <span className="text-gray-500 text-lg">
+                  {isAnnual ? t("subscribe.periodAnnual") : t("subscribe.periodMonthly")}
+                </span>
               </div>
-              <p className="text-sm text-gray-500 mt-1">{t("subscribe.cancel")}</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {isAnnual ? t("subscribe.cancelAnnual") : t("subscribe.cancelMonthly")}
+              </p>
+              {isAnnual && (
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-italianto-700 bg-italianto-50 border border-italianto-100 px-3 py-1 rounded-full font-medium">
+                  <Zap size={11} />
+                  vs $4.99/mes — pagas una sola vez al año
+                </div>
+              )}
             </div>
 
             <ul className="space-y-3 mb-8">

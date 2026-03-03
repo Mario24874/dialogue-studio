@@ -133,7 +133,16 @@
   },
 
   "subscribe": {
-    "title": "Activate your subscription to generate Italian dialogues",
+    "title": "Choose your plan to generate Italian dialogues",
+    "planMonthly": "Monthly",
+    "planAnnual": "Annual",
+    "savingsBadge": "Save 83%",
+    "priceMonthly": "$4.99",
+    "periodMonthly": "/month",
+    "priceAnnual": "$9.99",
+    "periodAnnual": "/year",
+    "cancelMonthly": "Cancel anytime",
+    "cancelAnnual": "One annual payment",
     "period": "/month",
     "cancel": "Cancel anytime",
     "features": [
@@ -154,8 +163,15 @@
   },
 
   "pricing": {
-    "title": "Simple and transparent pricing",
-    "subtitle": "No confusing tiers. Full access at a fixed price.",
+    "title": "Simple and transparent plans",
+    "subtitle": "No confusing tiers. Full access at your own pace.",
+    "planMonthly": "Monthly",
+    "planAnnual": "Annual",
+    "savingsBadge": "Save 83%",
+    "priceMonthly": "$4.99",
+    "periodMonthly": "/ month",
+    "priceAnnual": "$9.99",
+    "periodAnnual": "/ year",
     "period": "/ month",
     "cancel": "Cancel anytime. No commitment.",
     "features": [
