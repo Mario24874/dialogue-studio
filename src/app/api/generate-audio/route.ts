@@ -2,6 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 interface DialogueLine { name: string; text: string }
 interface Character { id: string; name: string; gender: "M" | "F"; voiceId: string }
 

@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { stripe, STRIPE_PRICE_ID, APP_URL } from "@/lib/stripe";
+import { getStripe, STRIPE_PRICE_ID, APP_URL } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase";
+
+export const dynamic = "force-dynamic";
 
 export async function POST() {
   try {
@@ -29,7 +31,7 @@ export async function POST() {
         .eq("id", userId)
         .single();
 
-      const customer = await stripe.customers.create({
+      const customer = await getStripe().customers.create({
         metadata: { clerk_user_id: userId },
         email: clerkUser?.email,
       });
@@ -41,7 +43,7 @@ export async function POST() {
         .eq("id", userId);
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       customer: stripeCustomerId,
       payment_method_types: ["card"],
       mode: "subscription",

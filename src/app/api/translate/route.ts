@@ -2,6 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 interface Character { id: string; name: string; gender: "M" | "F" }
 
 async function hasActiveSubscription(userId: string): Promise<boolean> {
