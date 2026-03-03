@@ -1,31 +1,25 @@
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useLanguage } from "@/contexts/language-context";
 import LanguageSelector from "@/components/ui/language-selector";
 
 const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-let SignedIn: React.FC<{ children: React.ReactNode }>;
-let SignedOut: React.FC<{ children: React.ReactNode }>;
-let UserButton: React.FC<{ afterSignOutUrl?: string }>;
-
-if (hasClerk) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const clerk = require("@clerk/nextjs");
-  SignedIn = clerk.SignedIn;
-  SignedOut = clerk.SignedOut;
-  UserButton = clerk.UserButton;
-} else {
-  // eslint-disable-next-line react/display-name
-  SignedIn = () => null;
-  // eslint-disable-next-line react/display-name
-  SignedOut = ({ children }) => <>{children}</>;
-  // eslint-disable-next-line react/display-name
-  UserButton = () => null;
-}
+// Loaded client-side only (ssr: false) so Clerk components never run during
+// build-time static prerendering — where there is no request/middleware context.
+const ClerkAuthDesktop = dynamic(
+  () => import("./header-auth").then((m) => ({ default: m.HeaderAuthDesktop })),
+  { ssr: false }
+);
+const ClerkAuthMobile = dynamic(
+  () => import("./header-auth").then((m) => ({ default: m.HeaderAuthMobile })),
+  { ssr: false }
+);
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,30 +48,28 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <LanguageSelector />
 
-          <SignedOut>
-            <Link
-              href="/sign-in"
-              className="hidden sm:inline-flex text-sm font-medium text-italianto-800 hover:text-italianto-900 transition-colors px-2"
-            >
-              {t("nav.signIn")}
-            </Link>
-            <Link
-              href="/sign-up"
-              className="px-4 py-2 bg-italianto-800 text-white text-sm font-semibold rounded-lg hover:bg-italianto-900 transition-colors"
-            >
-              {t("nav.signUp")}
-            </Link>
-          </SignedOut>
-
-          <SignedIn>
-            <Link
-              href="/studio"
-              className="hidden sm:inline-flex px-4 py-2 bg-italianto-800 text-white text-sm font-semibold rounded-lg hover:bg-italianto-900 transition-colors"
-            >
-              {t("nav.goToStudio")}
-            </Link>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+          {hasClerk ? (
+            <ClerkAuthDesktop
+              signInLabel={t("nav.signIn")}
+              signUpLabel={t("nav.signUp")}
+              studioLabel={t("nav.goToStudio")}
+            />
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className="hidden sm:inline-flex text-sm font-medium text-italianto-800 hover:text-italianto-900 transition-colors px-2"
+              >
+                {t("nav.signIn")}
+              </Link>
+              <Link
+                href="/sign-up"
+                className="px-4 py-2 bg-italianto-800 text-white text-sm font-semibold rounded-lg hover:bg-italianto-900 transition-colors"
+              >
+                {t("nav.signUp")}
+              </Link>
+            </>
+          )}
 
           {/* Mobile menu button */}
           <button
@@ -96,12 +88,18 @@ export default function Header() {
           <Link href="/#features" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.features")}</Link>
           <Link href="/pricing" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.pricing")}</Link>
           <Link href="/about" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.about")}</Link>
-          <SignedOut>
-            <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">{t("nav.signIn")}</Link>
-          </SignedOut>
-          <SignedIn>
-            <Link href="/studio" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">{t("nav.goToStudio")}</Link>
-          </SignedIn>
+
+          {hasClerk ? (
+            <ClerkAuthMobile
+              signInLabel={t("nav.signIn")}
+              studioLabel={t("nav.goToStudio")}
+              onNavigate={() => setMenuOpen(false)}
+            />
+          ) : (
+            <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">
+              {t("nav.signIn")}
+            </Link>
+          )}
         </div>
       )}
     </header>
