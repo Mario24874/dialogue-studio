@@ -7,6 +7,7 @@ import {
   Copy, Check, RotateCcw, Volume2, Sparkles
 } from "lucide-react";
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
+import { useLanguage } from "@/contexts/language-context";
 
 // Clerk hooks — opcionales para modo preview sin keys
 const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -36,6 +37,7 @@ const INITIAL_CHARACTERS: Character[] = [
 
 export default function StudioPage() {
   const { user } = useUser();
+  const { t, tArray } = useLanguage();
 
   // Estado del flujo
   const [step, setStep] = useState<Step>(1);
@@ -71,7 +73,6 @@ export default function StudioPage() {
     setProgress(10);
 
     try {
-      // Paso 1: Traducir al italiano
       const translateRes = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,7 +86,6 @@ export default function StudioPage() {
       const translatedLines: Array<{ name: string; text: string }> = translateData.lines;
 
       if (outputType === "written") {
-        // Formatear como texto escrito
         const formatted = translatedLines
           .map((line) => `${line.name}. ${line.text}`)
           .join("\n");
@@ -93,7 +93,6 @@ export default function StudioPage() {
         setProgress(100);
         setStep(4);
       } else {
-        // Generar audio
         setProgress(50);
         const audioRes = await fetch("/api/generate-audio", {
           method: "POST",
@@ -136,12 +135,7 @@ export default function StudioPage() {
     return false;
   };
 
-  const stepTitles = [
-    "Ingresa el diálogo",
-    "Configura personajes",
-    "Elige el formato",
-    "Resultado",
-  ];
+  const stepTitles = tArray("studio.stepTitles");
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -190,13 +184,11 @@ export default function StudioPage() {
           {/* PASO 1: Ingreso de diálogo */}
           {step === 1 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">Ingresa el diálogo</h2>
-              <p className="text-gray-500 text-sm mb-5">
-                Escribe o pega la conversación en español o inglés. Indica claramente quién dice qué (ej: &ldquo;A: ...&rdquo; o &ldquo;Persona A: ...&rdquo;).
-              </p>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{t("studio.step1.title")}</h2>
+              <p className="text-gray-500 text-sm mb-5">{t("studio.step1.subtitle")}</p>
 
               <div className="mb-4">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Idioma del texto ingresado</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">{t("studio.step1.langLabel")}</label>
                 <div className="flex gap-3">
                   {(["es", "en"] as SourceLang[]).map((lang) => (
                     <button
@@ -208,7 +200,7 @@ export default function StudioPage() {
                           : "bg-white text-gray-600 border-gray-200 hover:border-italianto-300"
                       }`}
                     >
-                      {lang === "es" ? "🇪🇸 Español" : "🇺🇸 English"}
+                      {lang === "es" ? t("studio.step1.langEs") : t("studio.step1.langEn")}
                     </button>
                   ))}
                 </div>
@@ -219,10 +211,11 @@ export default function StudioPage() {
                 onChange={(e) => setInputText(e.target.value)}
                 rows={10}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent resize-none transition-all font-mono"
-                placeholder={`Ejemplo:\nA: Hola, ¿cómo estás?\nB: Bien gracias, ¿y tú?\nA: Muy bien. ¿Tomamos un café?\nB: ¡Claro que sí!`}
+                placeholder={t("studio.step1.placeholder")}
               />
               <p className="text-xs text-gray-400 mt-2 text-right">
-                {inputText.length} caracteres {inputText.length < 20 && inputText.length > 0 && "(mínimo 20)"}
+                {t("studio.step1.chars", { n: String(inputText.length) })}
+                {inputText.length < 20 && inputText.length > 0 && ` ${t("studio.step1.minChars")}`}
               </p>
             </div>
           )}
@@ -230,10 +223,8 @@ export default function StudioPage() {
           {/* PASO 2: Configurar personajes */}
           {step === 2 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">Configura los personajes</h2>
-              <p className="text-gray-500 text-sm mb-5">
-                Los nombres que asignes aquí serán los que aparezcan en el resultado del diálogo en italiano.
-              </p>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{t("studio.step2.title")}</h2>
+              <p className="text-gray-500 text-sm mb-5">{t("studio.step2.subtitle")}</p>
               <CharacterBuilder characters={characters} onChange={setCharacters} />
             </div>
           )}
@@ -241,8 +232,8 @@ export default function StudioPage() {
           {/* PASO 3: Elegir formato */}
           {step === 3 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">¿Qué quieres generar?</h2>
-              <p className="text-gray-500 text-sm mb-6">Selecciona el formato de salida del diálogo en italiano.</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">{t("studio.step3.title")}</h2>
+              <p className="text-gray-500 text-sm mb-6">{t("studio.step3.subtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Opción: Escrito */}
@@ -259,10 +250,8 @@ export default function StudioPage() {
                   }`}>
                     <FileText className={`w-6 h-6 ${outputType === "written" ? "text-white" : "text-gray-500"}`} />
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-1">Diálogo Escrito</h3>
-                  <p className="text-sm text-gray-500">
-                    Texto formateado con los nombres de los personajes. Ideal para estudio y lectura.
-                  </p>
+                  <h3 className="font-bold text-gray-900 mb-1">{t("studio.step3.writtenTitle")}</h3>
+                  <p className="text-sm text-gray-500">{t("studio.step3.writtenDesc")}</p>
                   <div className="mt-3 text-xs text-gray-400 font-mono bg-gray-50 rounded-lg p-2">
                     Marco. Ciao Sofia!{"\n"}Sofia. Ciao Marco!
                   </div>
@@ -282,20 +271,18 @@ export default function StudioPage() {
                   }`}>
                     <Mic className={`w-6 h-6 ${outputType === "audio" ? "text-white" : "text-gray-500"}`} />
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-1">Audio Conversacional</h3>
-                  <p className="text-sm text-gray-500">
-                    MP3 con voces reales de ElevenLabs. Solo se escucha la conversación, sin leer nombres.
-                  </p>
+                  <h3 className="font-bold text-gray-900 mb-1">{t("studio.step3.audioTitle")}</h3>
+                  <p className="text-sm text-gray-500">{t("studio.step3.audioDesc")}</p>
                   <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
                     <Volume2 size={14} />
-                    <span>Voces naturales en italiano</span>
+                    <span>{t("studio.step3.voicesLabel")}</span>
                   </div>
                 </button>
               </div>
 
               {/* Resumen de configuración */}
               <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Resumen</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t("studio.step3.summary")}</p>
                 <div className="flex flex-wrap gap-2">
                   {characters.map((c, i) => (
                     <span key={c.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-italianto-100 rounded-full text-xs font-medium text-italianto-800">
@@ -315,15 +302,15 @@ export default function StudioPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">¡Diálogo generado!</h2>
-                  <p className="text-gray-500 text-sm">Tu diálogo en italiano está listo 🇮🇹</p>
+                  <h2 className="text-xl font-bold text-gray-900">{t("studio.step4.title")}</h2>
+                  <p className="text-gray-500 text-sm">{t("studio.step4.subtitle")}</p>
                 </div>
                 <button
                   onClick={resetStudio}
                   className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-italianto-700 transition-colors"
                 >
                   <RotateCcw size={15} />
-                  Nuevo diálogo
+                  {t("studio.step4.newDialogue")}
                 </button>
               </div>
 
@@ -341,7 +328,7 @@ export default function StudioPage() {
                     </button>
                   </div>
                   {copied && (
-                    <p className="text-xs text-italianto-600 mt-2 text-center">¡Copiado al portapapeles!</p>
+                    <p className="text-xs text-italianto-600 mt-2 text-center">{t("studio.step4.copied")}</p>
                   )}
                 </div>
               )}
@@ -352,10 +339,10 @@ export default function StudioPage() {
                   <div className="bg-italianto-50 border border-italianto-100 rounded-xl p-4">
                     <p className="text-sm font-medium text-italianto-800 mb-3 flex items-center gap-2">
                       <Volume2 size={16} />
-                      Audio del diálogo
+                      {t("studio.step4.audioTitle")}
                     </p>
                     <audio controls src={audioSrc} className="w-full">
-                      Tu navegador no soporta el elemento audio.
+                      {t("studio.step4.audioNotSupported")}
                     </audio>
                   </div>
                   <button
@@ -363,7 +350,7 @@ export default function StudioPage() {
                     className="w-full flex items-center justify-center gap-2 py-3 bg-italianto-800 text-white font-semibold rounded-xl hover:bg-italianto-900 transition-colors"
                   >
                     <Download size={18} />
-                    Descargar MP3
+                    {t("studio.step4.downloadMp3")}
                   </button>
                 </div>
               )}
@@ -378,7 +365,7 @@ export default function StudioPage() {
                 disabled={step === 1}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                ← Anterior
+                {t("studio.nav.prev")}
               </button>
 
               {step < 3 ? (
@@ -387,7 +374,7 @@ export default function StudioPage() {
                   disabled={!canGoNext()}
                   className="px-6 py-2.5 bg-italianto-800 text-white text-sm font-semibold rounded-xl hover:bg-italianto-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
-                  Siguiente →
+                  {t("studio.nav.next")}
                 </button>
               ) : (
                 <button
@@ -398,12 +385,12 @@ export default function StudioPage() {
                   {loading ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      {progress < 40 ? "Traduciendo..." : progress < 80 ? "Generando..." : "Finalizando..."}
+                      {progress < 40 ? t("studio.nav.translating") : progress < 80 ? t("studio.nav.generating") : t("studio.nav.finishing")}
                     </>
                   ) : (
                     <>
                       <Sparkles size={16} />
-                      Generar diálogo
+                      {t("studio.nav.generate")}
                     </>
                   )}
                 </button>

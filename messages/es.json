@@ -1,0 +1,213 @@
+{
+  "lang": { "es": "Español", "it": "Italiano", "en": "English" },
+
+  "nav": {
+    "features": "Funciones",
+    "pricing": "Precios",
+    "about": "Nosotros",
+    "signIn": "Iniciar sesión",
+    "signUp": "Comenzar",
+    "goToStudio": "Ir al Studio"
+  },
+
+  "landing": {
+    "badge": "Powered by Claude AI + ElevenLabs",
+    "hero": {
+      "title1": "Genera diálogos",
+      "titleHighlight": "en italiano",
+      "title2": "con IA",
+      "subtitle": "Convierte cualquier conversación del español o inglés al italiano. Obtén el resultado escrito o como audio natural con voces reales. Perfecto para aprender y enseñar italiano.",
+      "cta": "Comenzar ahora — $4.99/mes",
+      "ctaSecondary": "Ver cómo funciona"
+    },
+    "example": {
+      "label": "Ejemplo de diálogo generado",
+      "caption": "Generado automáticamente desde una conversación en español"
+    },
+    "features": {
+      "sectionLabel": "Funciones",
+      "title1": "Todo lo que necesitas para",
+      "titleHighlight": "crear diálogos en italiano",
+      "subtitle": "Una herramienta completa para estudiantes, docentes y amantes del italiano.",
+      "translation": { "title": "Traducción Inteligente", "desc": "Escribe tu diálogo en español o inglés y nuestra IA lo traduce a italiano natural y coloquial." },
+      "characters": { "title": "Múltiples Personajes", "desc": "Agrega todos los participantes del diálogo. Asigna nombre, género y voz a cada uno." },
+      "written": { "title": "Diálogo Escrito", "desc": "Resultado formateado profesionalmente: \"Marco. Ciao! Sofia. Come stai?\"" },
+      "audio": { "title": "Audio Conversacional", "desc": "Genera un audio natural donde cada personaje habla con su propia voz de ElevenLabs." },
+      "education": { "title": "Para Estudiantes y Docentes", "desc": "Ideal para crear material de práctica auditiva y escrita en clases de italiano." },
+      "download": { "title": "Descarga el Audio", "desc": "Descarga el diálogo en MP3 para usar offline en cualquier dispositivo." }
+    },
+    "howItWorks": {
+      "title": "¿Cómo funciona?",
+      "subtitle": "En 4 simples pasos",
+      "step1": { "title": "Escribe el diálogo", "desc": "Ingresa la conversación en español o inglés. Puede ser de 2 o más personas." },
+      "step2": { "title": "Configura los personajes", "desc": "Asigna nombre, género y voz ElevenLabs a cada participante." },
+      "step3": { "title": "Elige el formato", "desc": "Selecciona si quieres el resultado escrito o como audio conversacional." },
+      "step4": { "title": "¡Genera el diálogo!", "desc": "La IA traduce al italiano y genera el diálogo listo para usar." }
+    },
+    "pricing": {
+      "title": "Un precio simple",
+      "subtitle": "Sin límites. Sin sorpresas.",
+      "period": "por mes · cancela cuando quieras",
+      "features": ["Diálogos ilimitados", "Traducción al italiano con IA", "Audio con voces ElevenLabs", "Diálogos escritos formateados", "Múltiples personajes", "Descarga de audios MP3"],
+      "cta": "Empezar ahora",
+      "stripe": "Pago seguro con Stripe • Cancela en cualquier momento"
+    },
+    "cta": {
+      "title": "¿Listo para aprender italiano?",
+      "subtitle": "Únete a Italianto Dialogue Studio y genera tus primeros diálogos hoy.",
+      "button": "Comenzar — $4.99/mes"
+    }
+  },
+
+  "footer": {
+    "tagline": "Aprende italiano con diálogos reales generados por inteligencia artificial.",
+    "product": "Producto",
+    "legal": "Legal",
+    "features": "Funciones",
+    "pricing": "Precios",
+    "studio": "Dialogue Studio",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Uso",
+    "cookies": "Política de Cookies",
+    "about": "Sobre Nosotros",
+    "copyright": "© {year} Italianto. Todos los derechos reservados.",
+    "madeWith": "Hecho con ❤️ para aprender italiano"
+  },
+
+  "studio": {
+    "step1": {
+      "title": "Ingresa el diálogo",
+      "subtitle": "Escribe o pega la conversación en español o inglés. Indica claramente quién dice qué.",
+      "langLabel": "Idioma del texto ingresado",
+      "langEs": "🇪🇸 Español",
+      "langEn": "🇺🇸 English",
+      "placeholder": "Ejemplo:\nA: Hola, ¿cómo estás?\nB: Bien gracias, ¿y tú?\nA: Muy bien. ¿Tomamos un café?\nB: ¡Claro que sí!",
+      "chars": "{n} caracteres",
+      "minChars": "(mínimo 20)"
+    },
+    "step2": {
+      "title": "Configura los personajes",
+      "subtitle": "Los nombres que asignes aquí serán los que aparezcan en el resultado del diálogo en italiano."
+    },
+    "step3": {
+      "title": "¿Qué quieres generar?",
+      "subtitle": "Selecciona el formato de salida del diálogo en italiano.",
+      "writtenTitle": "Diálogo Escrito",
+      "writtenDesc": "Texto formateado con los nombres de los personajes. Ideal para estudio y lectura.",
+      "audioTitle": "Audio Conversacional",
+      "audioDesc": "MP3 con voces reales de ElevenLabs. Solo se escucha la conversación, sin leer nombres.",
+      "voicesLabel": "Voces naturales en italiano",
+      "summary": "Resumen"
+    },
+    "step4": {
+      "title": "¡Diálogo generado!",
+      "subtitle": "Tu diálogo en italiano está listo 🇮🇹",
+      "newDialogue": "Nuevo diálogo",
+      "audioTitle": "Audio del diálogo",
+      "downloadMp3": "Descargar MP3",
+      "copied": "¡Copiado al portapapeles!",
+      "audioNotSupported": "Tu navegador no soporta el elemento audio."
+    },
+    "nav": {
+      "prev": "← Anterior",
+      "next": "Siguiente →",
+      "generate": "Generar diálogo",
+      "translating": "Traduciendo...",
+      "generating": "Generando...",
+      "finishing": "Finalizando..."
+    },
+    "stepTitles": ["Ingresa el diálogo", "Configura personajes", "Elige el formato", "Resultado"]
+  },
+
+  "characters": {
+    "hint": "Configura cada participante del diálogo (mín. 2, máx. 6)",
+    "add": "Agregar personaje",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre del personaje",
+    "gender": "Género",
+    "male": "Hombre",
+    "female": "Mujer",
+    "voice": "Voz",
+    "remove": "Eliminar personaje",
+    "minWarning": "Necesitas al menos 2 personajes para generar el diálogo."
+  },
+
+  "subscribe": {
+    "title": "Activa tu suscripción para generar diálogos en italiano",
+    "period": "/mes",
+    "cancel": "Cancela cuando quieras",
+    "features": [
+      "Traducción automática al italiano con IA",
+      "Diálogos escritos con formato profesional",
+      "Audio conversacional con voces naturales ElevenLabs",
+      "Acceso ilimitado a generación de diálogos"
+    ],
+    "cta": "Suscribirme ahora",
+    "redirecting": "Redirigiendo a pago...",
+    "stripe": "Pago seguro con Stripe • SSL encriptado",
+    "legalPrefix": "Al suscribirte aceptas nuestros",
+    "terms": "Términos de Uso",
+    "and": "y",
+    "privacy": "Política de Privacidad",
+    "errorPayment": "Error al iniciar el pago",
+    "errorConnection": "Error de conexión. Intenta de nuevo."
+  },
+
+  "pricing": {
+    "title": "Precio simple y transparente",
+    "subtitle": "Sin niveles confusos. Acceso completo por un precio fijo.",
+    "period": "/ mes",
+    "cancel": "Cancela cuando quieras. Sin permanencia.",
+    "features": [
+      "Diálogos en italiano ilimitados",
+      "Traducción IA (español / inglés → italiano)",
+      "Diálogos escritos con formato profesional",
+      "Audio conversacional con voces ElevenLabs",
+      "Hasta 6 personajes por diálogo",
+      "Selección de voz por personaje",
+      "Descarga de audios MP3",
+      "Acceso web + APK Android",
+      "Actualizaciones incluidas",
+      "Soporte por email"
+    ],
+    "cta": "Comenzar ahora",
+    "stripe": "Pago seguro con Stripe · SSL encriptado · Cancela en cualquier momento",
+    "faqTitle": "Preguntas frecuentes",
+    "faq": [
+      { "q": "¿Hay período de prueba?", "a": "No, pero puedes cancelar cuando quieras sin penalización." },
+      { "q": "¿Puedo cancelar?", "a": "Sí, en cualquier momento desde tu perfil. Mantienes acceso hasta fin del período." },
+      { "q": "¿Cómo se factura?", "a": "Mensualmente mediante Stripe. Aceptamos las principales tarjetas." }
+    ]
+  },
+
+  "about": {
+    "title": "Sobre Nosotros",
+    "subtitle": "Italianto — Aprende italiano de forma natural",
+    "tagline": "Tu plataforma para aprender italiano con IA",
+    "missionTitle": "Nuestra misión",
+    "missionText": "En Italianto creemos que aprender italiano debe ser una experiencia auténtica, inmersiva y accesible. Nuestra misión es crear herramientas que conecten a los estudiantes con el italiano real, tal como se habla en la vida cotidiana.",
+    "productTitle": "Dialogue Studio",
+    "productText1": "Italianto Dialogue Studio es nuestra herramienta para generar diálogos auténticos en italiano. Usando inteligencia artificial de última generación (Claude de Anthropic) y síntesis de voz natural (ElevenLabs), transformamos conversaciones simples en material de estudio de alta calidad.",
+    "productText2": "Ya sea que seas estudiante, docente, o simplemente un apasionado del italiano, Dialogue Studio te ayuda a crear material de práctica en segundos.",
+    "techTitle": "Tecnología",
+    "techTranslation": "Traducción: Claude (Anthropic) — IA de comprensión del lenguaje natural.",
+    "techAudio": "Audio: ElevenLabs — síntesis de voz multilingüe ultra-realista.",
+    "techPlatform": "Plataforma: Next.js, disponible como web app y APK para Android.",
+    "contactTitle": "Contacto",
+    "contactText": "¿Tienes preguntas o sugerencias?",
+    "contactEmail": "Email: hello@italianto.com"
+  },
+
+  "legal": {
+    "lastUpdated": "Última actualización: {date}"
+  },
+
+  "mobile": {
+    "androidTitle": "Descarga la app para Android",
+    "androidSubtitle": "Instala la app nativa en tu dispositivo",
+    "downloadApk": "Descargar APK",
+    "iosTitle": "Agregar a pantalla de inicio",
+    "iosSubtitle": "Toca Compartir → Añadir a inicio",
+    "close": "×"
+  }
+}

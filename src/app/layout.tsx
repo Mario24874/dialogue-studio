@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LanguageProvider } from "@/contexts/language-context";
+import MobileAppBanner from "@/components/layout/mobile-app-banner";
 
 export const metadata: Metadata = {
   title: "Italianto Dialogue Studio",
   description: "Genera diálogos escritos y audios en italiano. Aprende italiano con conversaciones reales generadas por IA.",
   keywords: ["italiano", "aprender italiano", "diálogos italiano", "audio italiano", "italianto"],
   authors: [{ name: "Italianto" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Italianto",
+  },
   openGraph: {
     title: "Italianto Dialogue Studio",
     description: "Genera diálogos escritos y audios en italiano con IA",
@@ -30,7 +38,17 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="es">
-        <body>{children}</body>
+        <head>
+          <meta name="theme-color" content="#2e7d32" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <link rel="apple-touch-icon" href="/Logo_ItaliAnto.png" />
+        </head>
+        <body>
+          <LanguageProvider>
+            {children}
+            <MobileAppBanner />
+          </LanguageProvider>
+        </body>
       </html>
     </AuthProvider>
   );

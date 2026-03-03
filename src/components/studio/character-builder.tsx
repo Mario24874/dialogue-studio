@@ -1,5 +1,6 @@
 "use client";
 import { Plus, Trash2 } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export interface Character {
   id: string;
@@ -36,6 +37,8 @@ function generateId() {
 }
 
 export default function CharacterBuilder({ characters, onChange }: Props) {
+  const { t } = useLanguage();
+
   const addCharacter = () => {
     if (characters.length >= 6) return;
     const gender: "M" | "F" = characters.length % 2 === 0 ? "M" : "F";
@@ -73,7 +76,7 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-600">
-          Configura cada participante del diálogo (mín. 2, máx. 6)
+          {t("characters.hint")}
         </p>
         <button
           onClick={addCharacter}
@@ -81,7 +84,7 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
           className="flex items-center gap-1.5 text-sm font-medium text-italianto-700 hover:text-italianto-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <Plus size={16} />
-          Agregar personaje
+          {t("characters.add")}
         </button>
       </div>
 
@@ -98,33 +101,33 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
 
             {/* Nombre */}
             <div className="flex-1 min-w-0">
-              <label className="text-xs text-gray-500 mb-1 block">Nombre</label>
+              <label className="text-xs text-gray-500 mb-1 block">{t("characters.name")}</label>
               <input
                 type="text"
                 value={char.name}
                 onChange={(e) => updateCharacter(char.id, { name: e.target.value })}
                 className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent"
-                placeholder="Nombre del personaje"
+                placeholder={t("characters.namePlaceholder")}
                 maxLength={30}
               />
             </div>
 
             {/* Género */}
             <div className="w-full sm:w-24">
-              <label className="text-xs text-gray-500 mb-1 block">Género</label>
+              <label className="text-xs text-gray-500 mb-1 block">{t("characters.gender")}</label>
               <select
                 value={char.gender}
                 onChange={(e) => updateCharacter(char.id, { gender: e.target.value as "M" | "F" })}
                 className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 bg-white"
               >
-                <option value="M">Hombre</option>
-                <option value="F">Mujer</option>
+                <option value="M">{t("characters.male")}</option>
+                <option value="F">{t("characters.female")}</option>
               </select>
             </div>
 
             {/* Voz */}
             <div className="w-full sm:w-32">
-              <label className="text-xs text-gray-500 mb-1 block">Voz</label>
+              <label className="text-xs text-gray-500 mb-1 block">{t("characters.voice")}</label>
               <select
                 value={char.voiceId}
                 onChange={(e) => updateCharacter(char.id, { voiceId: e.target.value })}
@@ -141,7 +144,7 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
               onClick={() => removeCharacter(char.id)}
               disabled={characters.length <= 2}
               className="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-lg hover:bg-red-50"
-              title="Eliminar personaje"
+              title={t("characters.remove")}
             >
               <Trash2 size={16} />
             </button>
@@ -151,7 +154,7 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
 
       {characters.length < 2 && (
         <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          Necesitas al menos 2 personajes para generar el diálogo.
+          {t("characters.minWarning")}
         </p>
       )}
     </div>

@@ -3,12 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/language-context";
+import LanguageSelector from "@/components/ui/language-selector";
 
-// En cliente, NEXT_PUBLIC_* está disponible como variable de entorno
 const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-// Importación de Clerk solo si las keys están presentes
-// (Next.js inyecta NEXT_PUBLIC_* en tiempo de build/start)
 let SignedIn: React.FC<{ children: React.ReactNode }>;
 let SignedOut: React.FC<{ children: React.ReactNode }>;
 let UserButton: React.FC<{ afterSignOutUrl?: string }>;
@@ -20,7 +19,6 @@ if (hasClerk) {
   SignedOut = clerk.SignedOut;
   UserButton = clerk.UserButton;
 } else {
-  // Stubs para modo preview: muestra siempre los botones de auth
   // eslint-disable-next-line react/display-name
   SignedIn = () => null;
   // eslint-disable-next-line react/display-name
@@ -31,6 +29,7 @@ if (hasClerk) {
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-italianto-100 shadow-sm">
@@ -46,33 +45,36 @@ export default function Header() {
 
         {/* Nav desktop */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/#features" className="hover:text-italianto-700 transition-colors">Funciones</Link>
-          <Link href="/pricing" className="hover:text-italianto-700 transition-colors">Precios</Link>
-          <Link href="/about" className="hover:text-italianto-700 transition-colors">Nosotros</Link>
+          <Link href="/#features" className="hover:text-italianto-700 transition-colors">{t("nav.features")}</Link>
+          <Link href="/pricing" className="hover:text-italianto-700 transition-colors">{t("nav.pricing")}</Link>
+          <Link href="/about" className="hover:text-italianto-700 transition-colors">{t("nav.about")}</Link>
         </nav>
 
-        {/* Auth actions */}
-        <div className="flex items-center gap-3">
+        {/* Auth + Language */}
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+
           <SignedOut>
             <Link
               href="/sign-in"
-              className="hidden sm:inline-flex text-sm font-medium text-italianto-800 hover:text-italianto-900 transition-colors"
+              className="hidden sm:inline-flex text-sm font-medium text-italianto-800 hover:text-italianto-900 transition-colors px-2"
             >
-              Iniciar sesión
+              {t("nav.signIn")}
             </Link>
             <Link
               href="/sign-up"
               className="px-4 py-2 bg-italianto-800 text-white text-sm font-semibold rounded-lg hover:bg-italianto-900 transition-colors"
             >
-              Comenzar
+              {t("nav.signUp")}
             </Link>
           </SignedOut>
+
           <SignedIn>
             <Link
               href="/studio"
               className="hidden sm:inline-flex px-4 py-2 bg-italianto-800 text-white text-sm font-semibold rounded-lg hover:bg-italianto-900 transition-colors"
             >
-              Ir al Studio
+              {t("nav.goToStudio")}
             </Link>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
@@ -91,14 +93,14 @@ export default function Header() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-italianto-100 bg-white px-4 py-3 flex flex-col gap-3 text-sm font-medium">
-          <Link href="/#features" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">Funciones</Link>
-          <Link href="/pricing" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">Precios</Link>
-          <Link href="/about" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">Nosotros</Link>
+          <Link href="/#features" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.features")}</Link>
+          <Link href="/pricing" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.pricing")}</Link>
+          <Link href="/about" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.about")}</Link>
           <SignedOut>
-            <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">Iniciar sesión</Link>
+            <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">{t("nav.signIn")}</Link>
           </SignedOut>
           <SignedIn>
-            <Link href="/studio" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">Ir al Studio</Link>
+            <Link href="/studio" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">{t("nav.goToStudio")}</Link>
           </SignedIn>
         </div>
       )}

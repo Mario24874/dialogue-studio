@@ -1,8 +1,12 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-italianto-900 text-white">
       {/* Banner bandera italiana */}
@@ -17,35 +21,35 @@ export default function Footer() {
               <span className="font-bold text-lg">Italianto</span>
             </div>
             <p className="text-italianto-200 text-sm leading-relaxed">
-              Aprende italiano con diálogos reales generados por inteligencia artificial.
+              {t("footer.tagline")}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="font-semibold mb-3 text-italianto-100">Producto</h3>
+            <h3 className="font-semibold mb-3 text-italianto-100">{t("footer.product")}</h3>
             <ul className="space-y-2 text-sm text-italianto-300">
-              <li><Link href="/#features" className="hover:text-white transition-colors">Funciones</Link></li>
-              <li><Link href="/pricing" className="hover:text-white transition-colors">Precios</Link></li>
-              <li><Link href="/studio" className="hover:text-white transition-colors">Dialogue Studio</Link></li>
+              <li><Link href="/#features" className="hover:text-white transition-colors">{t("footer.features")}</Link></li>
+              <li><Link href="/pricing" className="hover:text-white transition-colors">{t("footer.pricing")}</Link></li>
+              <li><Link href="/studio" className="hover:text-white transition-colors">{t("footer.studio")}</Link></li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h3 className="font-semibold mb-3 text-italianto-100">Legal</h3>
+            <h3 className="font-semibold mb-3 text-italianto-100">{t("footer.legal")}</h3>
             <ul className="space-y-2 text-sm text-italianto-300">
-              <li><Link href="/privacy" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
-              <li><Link href="/terms" className="hover:text-white transition-colors">Términos de Uso</Link></li>
-              <li><Link href="/cookies" className="hover:text-white transition-colors">Política de Cookies</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">Sobre Nosotros</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">{t("footer.privacy")}</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">{t("footer.terms")}</Link></li>
+              <li><Link href="/cookies" className="hover:text-white transition-colors">{t("footer.cookies")}</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors">{t("footer.about")}</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-italianto-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-italianto-400">
-          <p>© {year} Italianto. Todos los derechos reservados.</p>
-          <p>Hecho con ❤️ para aprender italiano</p>
+          <p>{t("footer.copyright", { year: String(year) })}</p>
+          <p>{t("footer.madeWith")}</p>
         </div>
       </div>
     </footer>
