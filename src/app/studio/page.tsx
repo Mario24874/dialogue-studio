@@ -1,9 +1,9 @@
 "use client";
-// Studio requires auth → never statically prerender (Clerk hooks fail without request context)
-export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   FileText, Mic, ChevronRight, Loader2, Download,
   Copy, Check, RotateCcw, Volume2, Sparkles
@@ -11,22 +11,10 @@ import {
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
 import { useLanguage } from "@/contexts/language-context";
 
-// Clerk hooks — opcionales para modo preview sin keys
+// User info (useUser + UserButton) loaded client-side only — Clerk hooks cannot
+// run during build-time static prerendering (no request context, no middleware).
 const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-let useUser: () => { user: { firstName?: string | null; emailAddresses: { emailAddress: string }[] } | null | undefined };
-let UserButton: React.FC<{ afterSignOutUrl?: string }>;
-
-if (hasClerk) {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const clerk = require("@clerk/nextjs");
-  useUser = clerk.useUser;
-  UserButton = clerk.UserButton;
-} else {
-  useUser = () => ({ user: null });
-  // eslint-disable-next-line react/display-name
-  UserButton = () => null;
-}
+const StudioUser = dynamic(() => import("./_studio-user"), { ssr: false });
 
 type Step = 1 | 2 | 3 | 4;
 type OutputType = "written" | "audio";
@@ -38,7 +26,6 @@ const INITIAL_CHARACTERS: Character[] = [
 ];
 
 export default function StudioPage() {
-  const { user } = useUser();
   const { t, tArray } = useLanguage();
 
   // Estado del flujo
@@ -148,12 +135,7 @@ export default function StudioPage() {
             <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
             <span className="font-bold text-italianto-800 text-sm">Dialogue Studio</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-xs text-gray-400">
-              {user?.firstName ?? user?.emailAddresses[0].emailAddress}
-            </span>
-            <UserButton afterSignOutUrl="/" />
-          </div>
+          {hasClerk && <StudioUser />}
         </div>
       </header>
 
