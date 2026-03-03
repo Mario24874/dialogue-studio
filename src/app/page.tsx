@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { 
-  Globe, Mic, FileText, Sparkles, Users, Download,
+import {
+  Globe, FileText, Sparkles, Users, Download,
   Check, ArrowRight, BookOpen, Volume2
 } from "lucide-react";
 

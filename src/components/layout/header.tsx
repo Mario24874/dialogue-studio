@@ -21,8 +21,11 @@ if (hasClerk) {
   UserButton = clerk.UserButton;
 } else {
   // Stubs para modo preview: muestra siempre los botones de auth
+  // eslint-disable-next-line react/display-name
   SignedIn = () => null;
+  // eslint-disable-next-line react/display-name
   SignedOut = ({ children }) => <>{children}</>;
+  // eslint-disable-next-line react/display-name
   UserButton = () => null;
 }
 

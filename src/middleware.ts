@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
  * Middleware de autenticación con Clerk.
@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 
 // ── MODO PREVIEW (sin Clerk) ─────────────────────────────────────────
-export default function middleware(_req: NextRequest) {
+export default function middleware() {
   return NextResponse.next();
 }
 

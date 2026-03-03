@@ -1,5 +1,5 @@
 "use client";
-import { Plus, Trash2, User } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
 export interface Character {
   id: string;

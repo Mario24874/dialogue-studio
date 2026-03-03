@@ -141,10 +141,10 @@ export async function POST(req: NextRequest) {
       ...(isMock && { _mock: true }), // indica en la respuesta que es mock
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Translate API error:", error);
     return NextResponse.json(
-      { error: error.message || "Error en la traducción" },
+      { error: error instanceof Error ? error.message : "Error en la traducción" },
       { status: 500 }
     );
   }

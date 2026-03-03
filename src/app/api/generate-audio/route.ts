@@ -134,10 +134,10 @@ export async function POST(req: NextRequest) {
       lines: lines.length,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Generate audio error:", error);
     return NextResponse.json(
-      { error: error.message || "Error generando el audio" },
+      { error: error instanceof Error ? error.message : "Error generando el audio" },
       { status: 500 }
     );
   }

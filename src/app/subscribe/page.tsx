@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Check, Loader2, Sparkles, Mic, FileText, Globe } from "lucide-react";
 
@@ -14,7 +13,6 @@ const features = [
 export default function SubscribePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleSubscribe = async () => {
     setLoading(true);
@@ -62,7 +60,7 @@ export default function SubscribePage() {
             </div>
 
             <ul className="space-y-3 mb-8">
-              {features.map(({ icon: Icon, text }) => (
+              {features.map(({ text }) => (
                 <li key={text} className="flex items-center gap-3">
                   <div className="flex-shrink-0 w-8 h-8 bg-italianto-50 rounded-full flex items-center justify-center">
                     <Check className="w-4 h-4 text-italianto-700" />

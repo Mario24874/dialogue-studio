@@ -13,7 +13,7 @@ export default function TermsPage() {
     >
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">1. Aceptación de los términos</h2>
-        <p>Al acceder y usar Italianto Dialogue Studio ("el Servicio"), aceptas estar sujeto a estos Términos y Condiciones. Si no estás de acuerdo con alguna parte, no puedes usar el Servicio.</p>
+        <p>Al acceder y usar Italianto Dialogue Studio (&ldquo;el Servicio&rdquo;), aceptas estar sujeto a estos Términos y Condiciones. Si no estás de acuerdo con alguna parte, no puedes usar el Servicio.</p>
       </section>
 
       <section>
@@ -58,7 +58,7 @@ export default function TermsPage() {
 
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">6. Limitación de responsabilidad</h2>
-        <p>El Servicio se proporciona "tal cual". No garantizamos que:</p>
+        <p>El Servicio se proporciona &ldquo;tal cual&rdquo;. No garantizamos que:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1 text-sm">
           <li>Las traducciones sean perfectas o libres de errores.</li>
           <li>El Servicio esté disponible de forma ininterrumpida.</li>

@@ -13,7 +13,7 @@ export async function POST() {
     const db = createServiceClient();
 
     // Obtener o crear usuario en Supabase
-    let { data: user } = await db
+    const { data: user } = await db
       .from("users")
       .select("stripe_customer_id, email")
       .eq("id", userId)
@@ -58,8 +58,11 @@ export async function POST() {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Stripe checkout error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Error al crear sesión de pago" },
+      { status: 500 }
+    );
   }
 }

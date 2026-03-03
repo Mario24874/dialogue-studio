@@ -21,6 +21,7 @@ if (hasClerk) {
   UserButton = clerk.UserButton;
 } else {
   useUser = () => ({ user: null });
+  // eslint-disable-next-line react/display-name
   UserButton = () => null;
 }
 
@@ -108,8 +109,8 @@ export default function StudioPage() {
         setProgress(100);
         setStep(4);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setLoading(false);
     }
@@ -191,7 +192,7 @@ export default function StudioPage() {
             <div className="p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-1">Ingresa el diálogo</h2>
               <p className="text-gray-500 text-sm mb-5">
-                Escribe o pega la conversación en español o inglés. Indica claramente quién dice qué (ej: "A: ..." o "Persona A: ...").
+                Escribe o pega la conversación en español o inglés. Indica claramente quién dice qué (ej: &ldquo;A: ...&rdquo; o &ldquo;Persona A: ...&rdquo;).
               </p>
 
               <div className="mb-4">

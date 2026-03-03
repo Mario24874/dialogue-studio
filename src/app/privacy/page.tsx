@@ -13,7 +13,7 @@ export default function PrivacyPage() {
     >
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">1. Información que recopilamos</h2>
-        <p>Al usar Italianto Dialogue Studio ("el Servicio"), recopilamos los siguientes tipos de información:</p>
+        <p>Al usar Italianto Dialogue Studio (&ldquo;el Servicio&rdquo;), recopilamos los siguientes tipos de información:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1 text-sm">
           <li><strong>Información de cuenta:</strong> nombre, dirección de correo electrónico y datos de autenticación proporcionados a través de Clerk.</li>
           <li><strong>Información de pago:</strong> procesada de forma segura por Stripe. No almacenamos datos de tarjetas de crédito.</li>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
         <ul className="list-disc pl-6 mt-2 space-y-1 text-sm">
           <li>Acceder a los datos personales que tenemos sobre ti.</li>
           <li>Corregir información inexacta.</li>
-          <li>Solicitar la eliminación de tus datos ("derecho al olvido").</li>
+          <li>Solicitar la eliminación de tus datos (&ldquo;derecho al olvido&rdquo;).</li>
           <li>Portabilidad de datos.</li>
           <li>Oponerte al procesamiento de tus datos.</li>
         </ul>
