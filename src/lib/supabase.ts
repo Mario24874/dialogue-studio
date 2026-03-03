@@ -1,11 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Clientes como funciones para que no se instancien al importar el módulo
+// (evita errores en build de Netlify cuando las env vars aún no están disponibles)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export function createBrowserClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
-// Cliente con service role para operaciones de servidor (webhooks, etc.)
 export function createServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
