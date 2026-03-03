@@ -1,4 +1,6 @@
 "use client";
+// Studio requires auth → never statically prerender (Clerk hooks fail without request context)
+export const dynamic = "force-dynamic";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
