@@ -19,7 +19,7 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Cache-Control = "no-cache, must-revalidate"
+    Cache-Control = "no-store"
 
 # ── Assets estáticos con content-hash: cachear para siempre ──────────────────
 # Los archivos en /_next/static/ tienen hashes en su nombre → nunca cambian.
