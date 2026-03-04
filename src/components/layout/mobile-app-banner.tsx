@@ -8,6 +8,10 @@ import { useLanguage } from "@/contexts/language-context";
 // Puede ser un GitHub Release o cualquier CDN
 const APK_URL = process.env.NEXT_PUBLIC_APK_DOWNLOAD_URL || "#";
 
+// Referencia al timestamp de build — cambia en cada deploy,
+// garantizando que este chunk obtenga un nuevo contenthash y Netlify lo suba fresco al CDN.
+const _buildTime = process.env.NEXT_PUBLIC_BUILD_TIME;
+
 type Platform = "android" | "ios" | null;
 
 function detectPlatform(): Platform {
