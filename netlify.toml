@@ -8,9 +8,7 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# ── Headers de seguridad + no-cache para TODO (páginas HTML) ──────────────────
-# Netlify aplica headers en orden; la regla más específica al final gana.
-# Por defecto: no cachear ninguna página HTML en CDN.
+# ── Headers de seguridad ────────────────────────────────────────────────────
 [[headers]]
   for = "/*"
   [headers.values]
@@ -19,28 +17,14 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Cache-Control = "no-store"
 
-# ── Assets estáticos con content-hash: cachear para siempre ──────────────────
-# Los archivos en /_next/static/ tienen hashes en su nombre → nunca cambian.
-# Esta regla sobreescribe el no-cache del bloque anterior para estos paths.
+# ── Assets estáticos Next.js: inmutables (content-hash en nombre) ───────────
 [[headers]]
   for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# ── Imágenes y assets públicos: caché moderado ────────────────────────────────
-[[headers]]
-  for = "/Logo_ItaliAnto.png"
-  [headers.values]
-    Cache-Control = "public, max-age=86400"
-
-[[headers]]
-  for = "/coliseo.jpg"
-  [headers.values]
-    Cache-Control = "public, max-age=86400"
-
-# ── Webhook de Stripe: sin caché ──────────────────────────────────────────────
+# ── Webhook de Stripe: sin caché ─────────────────────────────────────────────
 [[headers]]
   for = "/api/stripe/webhook"
   [headers.values]

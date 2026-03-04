@@ -1,8 +1,3 @@
-// Forzar renderizado dinámico en TODAS las páginas.
-// Evita que Netlify CDN cachee HTML estático con chunk hashes de builds anteriores,
-// lo que causaba errores 404 en _next/static/chunks/ tras cada nuevo deploy.
-export const dynamic = "force-dynamic";
-
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";

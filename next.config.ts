@@ -21,17 +21,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  webpack: (config, { dev, isServer, buildId }) => {
+  webpack: (config, { dev, isServer }) => {
     // Evitar problemas de symlinks en Windows
     if (dev && !isServer) {
       config.resolve.symlinks = false;
-    }
-    // Forzar que TODOS los chunk hashes cambien en cada deploy de producción.
-    // Sin esto, Netlify's delta-deployment omite re-subir chunks con el mismo hash
-    // aunque el CDN ya no los tenga → 404.
-    // buildId cambia cada deploy gracias a generateBuildId: () => `build-${Date.now()}`
-    if (!dev) {
-      config.output.hashSalt = buildId;
     }
     return config;
   },
