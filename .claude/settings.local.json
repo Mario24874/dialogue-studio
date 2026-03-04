@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "WebSearch",
+      "WebFetch(domain:magicui.design)",
+      "Bash(npx:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(rm:*)",
+      "Bash(powershell:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(npm:*)",
+      "Bash(node:*)",
+      "Bash(rsync:*)",
+      "Bash(cat:*)",
+      "Bash(\"/mnt/c/Proyectos/dialogue-studio/src/app/sign-in/[[...sign-in]]/page.tsx\":*)",
+      "Bash(/mnt/c/Proyectos/dialogue-studio/netlify.toml:*)",
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "Bash(/mnt/c/Proyectos/dialogue-studio/.env.local:*)",
+      "Bash(wget:*)",
+      "Bash(git remote:*)",
+      "Bash(git add:*)",
+      "WebFetch(domain:ntl.fyi)",
+      "WebFetch(domain:www.netlify.com)",
+      "Bash(cp:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -91,7 +91,7 @@ export default function PricingPage() {
               </ul>
 
               <Link
-                href={`/sign-up?plan=${plan}`}
+                href={`/subscribe?plan=${plan}`}
                 className="block w-full py-4 bg-white text-italianto-900 font-bold rounded-xl hover:bg-italianto-50 transition-colors text-lg"
               >
                 {t("pricing.cta")}

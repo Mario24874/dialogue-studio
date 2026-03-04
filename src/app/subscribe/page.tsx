@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Check, Loader2, Sparkles, Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
@@ -11,6 +12,12 @@ export default function SubscribePage() {
   const [error, setError] = useState("");
   const [plan, setPlan] = useState<Plan>("annual");
   const { t, tArray } = useLanguage();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const p = searchParams.get("plan");
+    if (p === "monthly" || p === "annual") setPlan(p);
+  }, [searchParams]);
   const features = tArray("subscribe.features");
 
   const handleSubscribe = async () => {

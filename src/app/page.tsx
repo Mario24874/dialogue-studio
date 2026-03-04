@@ -70,7 +70,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  href="/sign-up"
+                  href="/subscribe"
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-italianto-900 font-semibold rounded-xl hover:bg-italianto-50 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   <Sparkles size={18} />
@@ -184,7 +184,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <Link
-                  href="/sign-up"
+                  href="/subscribe"
                   className="block w-full py-3.5 bg-white text-italianto-900 font-bold rounded-xl hover:bg-italianto-50 transition-colors"
                 >
                   {t("landing.pricing.cta")}
@@ -206,7 +206,7 @@ export default function LandingPage() {
               {t("landing.cta.subtitle")}
             </p>
             <Link
-              href="/sign-up"
+              href="/subscribe"
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-italianto-900 font-bold rounded-xl hover:bg-italianto-50 transition-all duration-200 shadow-lg text-lg"
             >
               <Sparkles size={20} />

@@ -65,7 +65,8 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = '';
 
 CREATE TRIGGER users_updated_at
   BEFORE UPDATE ON public.users
