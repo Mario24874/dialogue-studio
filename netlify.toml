@@ -30,6 +30,16 @@
   [headers.values]
     Cache-Control = "no-store"
 
+# ── Path mapping para assets estáticos de Next.js ────────────────────────────
+# Con publish = ".next", el CDN sirve .next/ como raíz.
+# .next/static/ está en CDN como /static/ (no como /_next/static/).
+# El HTML de Next.js siempre referencia /_next/static/, por eso este rewrite.
+[[redirects]]
+  from = "/_next/static/*"
+  to = "/static/:splat"
+  status = 200
+  force = true
+
 # ── Rutas de Clerk ────────────────────────────────────────────────────────────
 [[redirects]]
   from = "/sign-in"
