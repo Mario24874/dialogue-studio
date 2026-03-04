@@ -60,7 +60,9 @@ function parseTranslationJson(raw: string) {
   return parsed;
 }
 
-// ─── PROVEEDOR: Gemini (actual — capa gratuita) ───────────────────────────────
+// ─── PROVEEDOR: Gemini (actual — testing con capa gratuita) ──────────────────
+// Prueba gemini-3-flash-preview primero; si hay cuota agotada (429) cae a versiones anteriores.
+// Producción: reemplazar por Claude Haiku agregando ANTHROPIC_API_KEY en Netlify.
 async function translateWithGemini(
   text: string,
   sourceLang: string,
@@ -68,12 +70,27 @@ async function translateWithGemini(
 ) {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
   const prompt = buildPrompt(text, sourceLang, characters);
-  const result = await model.generateContent(prompt);
-  const raw = result.response.text();
-  return parseTranslationJson(raw);
+
+  const models = ["gemini-3-flash-preview", "gemini-2.0-flash", "gemini-1.5-flash"];
+  let lastError: unknown;
+
+  for (const modelName of models) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      return parseTranslationJson(result.response.text());
+    } catch (err: unknown) {
+      lastError = err;
+      const msg = err instanceof Error ? err.message : "";
+      // Solo reintenta con el siguiente modelo si es error de cuota/rate-limit
+      if (!msg.includes("429") && !msg.includes("quota") && !msg.includes("Too Many Requests")) {
+        throw err;
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 // ─── PROVEEDOR: Claude Haiku (futuro — producción en VPS) ────────────────────
@@ -170,9 +187,13 @@ export async function POST(req: NextRequest) {
 
   } catch (error: unknown) {
     console.error("Translate API error:", error);
+    const msg = error instanceof Error ? error.message : "";
+    const isQuota = msg.includes("429") || msg.includes("quota") || msg.includes("Too Many Requests");
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error en la traducción" },
-      { status: 500 }
+      { error: isQuota
+          ? "Límite de traducciones alcanzado. Por favor intenta de nuevo en unos minutos."
+          : (msg || "Error en la traducción") },
+      { status: isQuota ? 429 : 500 }
     );
   }
 }
