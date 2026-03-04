@@ -18,6 +18,27 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
+# HTML: sin caché para que deploys nuevos no rompan los chunks de JS
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/studio"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/subscribe"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
+[[headers]]
+  for = "/pricing"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
+
 # Webhook de Stripe: sin caché
 [[headers]]
   for = "/api/stripe/webhook"
