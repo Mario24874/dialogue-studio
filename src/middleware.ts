@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
   "/privacy",
   "/terms",
   "/cookies",
+  "/manifest.json",        // PWA manifest — archivo estático público
   "/api/stripe/webhook",   // Stripe necesita acceso sin sesión
   "/api/clerk/webhook",    // Clerk necesita acceso sin sesión
 ]);
