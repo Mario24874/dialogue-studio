@@ -41,7 +41,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/Logo_ItaliAnto.png" />
       </head>
-      <body>
+      <body data-v="3">
         <LanguageProvider>
           {children}
           <MobileAppBanner />
