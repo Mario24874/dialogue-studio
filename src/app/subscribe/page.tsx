@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Check, Loader2, Sparkles, Zap } from "lucide-react";
@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/language-context";
 
 type Plan = "monthly" | "annual";
 
-export default function SubscribePage() {
+function SubscribeContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [plan, setPlan] = useState<Plan>("annual");
@@ -153,5 +153,13 @@ export default function SubscribePage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SubscribePage() {
+  return (
+    <Suspense>
+      <SubscribeContent />
+    </Suspense>
   );
 }
