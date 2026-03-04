@@ -72,7 +72,7 @@ async function translateWithGemini(
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const prompt = buildPrompt(text, sourceLang, characters);
 
-  const models = ["gemini-3-flash-preview", "gemini-2.0-flash", "gemini-1.5-flash"];
+  const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-3-flash-preview"];
   let lastError: unknown;
 
   for (const modelName of models) {
@@ -82,11 +82,7 @@ async function translateWithGemini(
       return parseTranslationJson(result.response.text());
     } catch (err: unknown) {
       lastError = err;
-      const msg = err instanceof Error ? err.message : "";
-      // Solo reintenta con el siguiente modelo si es error de cuota/rate-limit
-      if (!msg.includes("429") && !msg.includes("quota") && !msg.includes("Too Many Requests")) {
-        throw err;
-      }
+      // Siempre intenta el siguiente modelo (cuota, model not found, etc.)
     }
   }
 
