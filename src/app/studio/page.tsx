@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
 import { useLanguage } from "@/contexts/language-context";
+import { getPlanLimits, type PlanType } from "@/lib/quota";
 
 // User info (useUser + UserButton) loaded client-side only — Clerk hooks cannot
 // run during build-time static prerendering (no request context, no middleware).
@@ -19,6 +20,7 @@ const StudioUser = dynamic(() => import("./_studio-user"), { ssr: false });
 type Step = 1 | 2 | 3 | 4;
 type OutputType = "written" | "audio";
 type SourceLang = "es" | "en";
+type QuotaInfo = { plan_type: PlanType; dialogues_used: number; audio_used: number } | null;
 
 const INITIAL_CHARACTERS: Character[] = [
   { id: "a", name: "Persona A", gender: "M", voiceId: ELEVENLABS_VOICES.M[0].id },
@@ -27,6 +29,19 @@ const INITIAL_CHARACTERS: Character[] = [
 
 export default function StudioPage() {
   const { t, tArray } = useLanguage();
+
+  // Cuotas
+  const [quota, setQuota] = useState<QuotaInfo>(null);
+  useEffect(() => {
+    fetch("/api/subscription")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (d?.active && d.plan_type) {
+          setQuota({ plan_type: d.plan_type, dialogues_used: d.dialogues_used, audio_used: d.audio_used });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Estado del flujo
   const [step, setStep] = useState<Step>(1);
@@ -135,7 +150,26 @@ export default function StudioPage() {
             <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
             <span className="font-bold text-italianto-800 text-sm">Dialogue Studio</span>
           </Link>
-          {hasClerk && <StudioUser />}
+          <div className="flex items-center gap-3">
+            {quota && (() => {
+              const limits = getPlanLimits(quota.plan_type);
+              const dLabel = limits.dialogues === -1 ? "∞" : `${quota.dialogues_used}/${limits.dialogues}`;
+              const aLabel = limits.audio === -1 ? "∞" : `${quota.audio_used}/${limits.audio}`;
+              return (
+                <Link
+                  href="/account"
+                  className="hidden sm:flex items-center gap-2 text-xs text-gray-500 hover:text-italianto-700 transition-colors bg-gray-50 hover:bg-italianto-50 border border-gray-200 rounded-lg px-3 py-1.5"
+                >
+                  <FileText size={12} />
+                  <span>{dLabel}</span>
+                  <span className="text-gray-300">·</span>
+                  <Mic size={12} />
+                  <span>{aLabel}</span>
+                </Link>
+              );
+            })()}
+            {hasClerk && <StudioUser />}
+          </div>
         </div>
       </header>
 

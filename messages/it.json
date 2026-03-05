@@ -285,5 +285,22 @@
         "Supporto prioritario"
       ]
     }
+  },
+
+  "account": {
+    "title": "Il Mio Account",
+    "plan": "Piano attivo",
+    "usage": "Utilizzo questo mese",
+    "dialogues": "Dialoghi scritti",
+    "audio": "Audio generati",
+    "unlimited": "Illimitato",
+    "resetDate": "Reset il",
+    "manage": "Gestisci abbonamento",
+    "manageLoading": "Apertura portale...",
+    "noSub": "Non hai un abbonamento attivo.",
+    "subscribe": "Vedi i piani",
+    "canceling": "Annullamento a fine periodo",
+    "cancelNote": "Dal portale puoi cambiare piano, aggiornare il metodo di pagamento o cancellare il tuo abbonamento.",
+    "portalError": "Errore nell'apertura del portale. Riprova."
   }
 }

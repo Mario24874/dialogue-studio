@@ -285,5 +285,22 @@
         "Priority support"
       ]
     }
+  },
+
+  "account": {
+    "title": "My Account",
+    "plan": "Active plan",
+    "usage": "Usage this month",
+    "dialogues": "Written dialogues",
+    "audio": "Generated audios",
+    "unlimited": "Unlimited",
+    "resetDate": "Resets on",
+    "manage": "Manage subscription",
+    "manageLoading": "Opening portal...",
+    "noSub": "You don't have an active subscription.",
+    "subscribe": "See plans",
+    "canceling": "Cancels at period end",
+    "cancelNote": "From the portal you can switch plans, update your payment method, or cancel your subscription.",
+    "portalError": "Error opening the portal. Please try again."
   }
 }

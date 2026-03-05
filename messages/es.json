@@ -283,5 +283,22 @@
         "Soporte prioritario"
       ]
     }
+  },
+
+  "account": {
+    "title": "Mi Cuenta",
+    "plan": "Plan activo",
+    "usage": "Uso este mes",
+    "dialogues": "Diálogos escritos",
+    "audio": "Audios generados",
+    "unlimited": "Ilimitado",
+    "resetDate": "Reset el",
+    "manage": "Gestionar suscripción",
+    "manageLoading": "Abriendo portal...",
+    "noSub": "No tienes una suscripción activa.",
+    "subscribe": "Ver planes",
+    "canceling": "Cancela al fin del período",
+    "cancelNote": "Desde el portal puedes cambiar de plan, actualizar tu método de pago o cancelar tu suscripción.",
+    "portalError": "Error al abrir el portal. Intenta de nuevo."
   }
 }
