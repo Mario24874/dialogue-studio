@@ -45,17 +45,13 @@
       "step4": { "title": "Generate the dialogue!", "desc": "The AI translates to Italian and generates the dialogue ready to use." }
     },
     "pricing": {
-      "title": "One simple price",
-      "subtitle": "No limits. No surprises.",
-      "period": "per month · cancel anytime",
-      "features": ["Unlimited dialogues", "Italian translation with AI", "Audio with ElevenLabs voices", "Formatted written dialogues", "Multiple characters", "Download MP3 audio"],
-      "cta": "Start now",
-      "stripe": "Secure payment with Stripe • Cancel anytime"
+      "title": "Choose your plan",
+      "subtitle": "No surprises. Cancel anytime."
     },
     "cta": {
       "title": "Ready to learn Italian?",
       "subtitle": "Join Italianto Dialogue Studio and generate your first dialogues today.",
-      "button": "Get started — $4.99/month"
+      "button": "See plans"
     }
   },
 

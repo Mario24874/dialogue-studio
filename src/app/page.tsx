@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useLanguage } from "@/contexts/language-context";
@@ -18,9 +19,15 @@ Sofia. Certo, andiamo!`;
 
 const FEATURE_ICONS = [Globe, Users, FileText, Volume2, BookOpen, Download];
 const FEATURE_KEYS = ["translation", "characters", "written", "audio", "education", "download"];
+const PLANS = [
+  { key: "basic", popular: false },
+  { key: "standard", popular: true },
+  { key: "pro", popular: false },
+];
 
 export default function LandingPage() {
   const { t, tArray } = useLanguage();
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   const steps = [
     { n: "01", title: t("landing.howItWorks.step1.title"), desc: t("landing.howItWorks.step1.desc") },
@@ -28,8 +35,6 @@ export default function LandingPage() {
     { n: "03", title: t("landing.howItWorks.step3.title"), desc: t("landing.howItWorks.step3.desc") },
     { n: "04", title: t("landing.howItWorks.step4.title"), desc: t("landing.howItWorks.step4.desc") },
   ];
-
-  const pricingFeatures = tArray("landing.pricing.features");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -162,37 +167,99 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* PRICING SIMPLE */}
+        {/* PRICING — 3 PLANES */}
         <section id="pricing" className="py-20 bg-white">
-          <div className="max-w-md mx-auto px-4 text-center">
+          <div className="max-w-5xl mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               {t("landing.pricing.title")}
             </h2>
-            <p className="text-gray-600 mb-10">{t("landing.pricing.subtitle")}</p>
+            <p className="text-gray-600 mb-8">{t("landing.pricing.subtitle")}</p>
 
-            <div className="bg-italianto-800 text-white rounded-2xl overflow-hidden shadow-italianto-lg">
-              <div className="h-1.5" style={{background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)"}} />
-              <div className="p-8">
-                <div className="text-5xl font-black mb-1">$4.99</div>
-                <div className="text-italianto-300 mb-6">{t("landing.pricing.period")}</div>
-                <ul className="text-left space-y-3 mb-8">
-                  {pricingFeatures.map((f) => (
-                    <li key={f} className="flex items-center gap-3 text-sm">
-                      <Check className="w-4 h-4 text-italianto-300 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/subscribe"
-                  className="block w-full py-3.5 bg-white text-italianto-900 font-bold rounded-xl hover:bg-italianto-50 transition-colors"
-                >
-                  {t("landing.pricing.cta")}
-                </Link>
-              </div>
+            {/* Toggle mensual / anual */}
+            <div className="inline-flex items-center bg-gray-100 rounded-xl p-1 mb-10">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  billing === "monthly"
+                    ? "bg-white shadow text-gray-900"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {t("plans.toggleMonthly")}
+              </button>
+              <button
+                onClick={() => setBilling("annual")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  billing === "annual"
+                    ? "bg-white shadow text-gray-900"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {t("plans.toggleAnnual")}
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                  {t("plans.savingsBadge")}
+                </span>
+              </button>
             </div>
 
-            <p className="text-xs text-gray-400 mt-4">{t("landing.pricing.stripe")}</p>
+            {/* Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PLANS.map(({ key, popular }) => (
+                <div
+                  key={key}
+                  className={`relative rounded-2xl border p-6 text-left flex flex-col ${
+                    popular
+                      ? "border-italianto-500 shadow-italianto-lg ring-2 ring-italianto-300"
+                      : "border-gray-200 shadow-sm"
+                  }`}
+                >
+                  {popular && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-italianto-700 text-white text-xs font-semibold px-4 py-1 rounded-full whitespace-nowrap">
+                      {t("plans.popular")}
+                    </span>
+                  )}
+                  <h3 className="font-bold text-gray-900 text-lg mb-1">
+                    {t(`plans.${key}.name`)}
+                  </h3>
+                  <p className="text-gray-500 text-sm mb-4">
+                    {t(`plans.${key}.description`)}
+                  </p>
+                  <div className="mb-1">
+                    <span className="text-4xl font-black text-gray-900">
+                      {billing === "monthly"
+                        ? t(`plans.${key}.priceMonthly`)
+                        : t(`plans.${key}.priceAnnual`)}
+                    </span>
+                    <span className="text-gray-500 text-sm ml-1">
+                      {billing === "monthly" ? t("plans.perMonth") : t("plans.perYear")}
+                    </span>
+                  </div>
+                  {billing === "annual" && (
+                    <p className="text-xs text-gray-400 mb-3">{t("plans.annualNote")}</p>
+                  )}
+                  <ul className="space-y-2 my-4 flex-1">
+                    {(tArray(`plans.${key}.features`) as string[]).map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                        <Check className="w-4 h-4 text-italianto-600 flex-shrink-0 mt-0.5" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/pricing"
+                    className={`block text-center py-3 rounded-xl font-semibold text-sm transition-colors mt-2 ${
+                      popular
+                        ? "bg-italianto-800 text-white hover:bg-italianto-900"
+                        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    }`}
+                  >
+                    {t("plans.cta")}
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs text-gray-400 mt-6">{t("plans.stripe")}</p>
           </div>
         </section>
 
