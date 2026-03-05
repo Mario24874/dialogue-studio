@@ -1,22 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase";
+import { checkQuota, incrementUsage } from "@/lib/quota";
 
 export const dynamic = "force-dynamic";
 
 interface Character { id: string; name: string; gender: "M" | "F" }
-
-async function hasActiveSubscription(userId: string): Promise<boolean> {
-  const db = createServiceClient();
-  const { data } = await db
-    .from("subscriptions")
-    .select("status")
-    .eq("user_id", userId)
-    .in("status", ["active", "trialing"])
-    .limit(1)
-    .single();
-  return !!data;
-}
 
 // Prompt compartido por ambos proveedores
 function buildPrompt(text: string, sourceLang: string, characters: Character[]): string {
@@ -144,10 +132,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
 
-    const subscribed = await hasActiveSubscription(userId);
-    if (!subscribed) {
+    const quota = await checkQuota(userId, "dialogue");
+    if (!quota.subscribed) {
       return NextResponse.json(
         { error: "Suscripción requerida. Por favor suscríbete para usar esta función." },
+        { status: 403 }
+      );
+    }
+    if (!quota.allowed) {
+      return NextResponse.json(
+        { error: `Has alcanzado el límite de diálogos de tu plan (${quota.used}/${quota.limit}). Actualiza tu plan para continuar.` },
         { status: 403 }
       );
     }
@@ -179,6 +173,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    await incrementUsage(userId, "dialogue");
     return NextResponse.json({ lines: result.lines });
 
   } catch (error: unknown) {

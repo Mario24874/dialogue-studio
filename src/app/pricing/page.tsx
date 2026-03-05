@@ -1,111 +1,151 @@
 "use client";
 import Link from "next/link";
-import { Check, Zap } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { useLanguage } from "@/contexts/language-context";
 
-type Plan = "monthly" | "annual";
+type Billing = "monthly" | "annual";
+type PlanId = "basic" | "standard" | "pro";
+
+const PLANS: PlanId[] = ["basic", "standard", "pro"];
 
 export default function PricingPage() {
   const { t, tArray } = useLanguage();
-  const [plan, setPlan] = useState<Plan>("annual");
-  const features = tArray("pricing.features");
-  const faq = [0, 1, 2].map((i) => ({
-    q: t(`pricing.faq.${i}.q`),
-    a: t(`pricing.faq.${i}.a`),
-  }));
-
-  const isAnnual = plan === "annual";
+  const [billing, setBilling] = useState<Billing>("annual");
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 bg-gray-50">
-        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{t("pricing.title")}</h1>
-          <p className="text-gray-500 text-lg mb-8">{t("pricing.subtitle")}</p>
+        <div className="max-w-5xl mx-auto px-4 py-16">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">{t("pricing.title")}</h1>
+            <p className="text-gray-500 text-lg">{t("pricing.subtitle")}</p>
+          </div>
 
-          {/* Selector mensual / anual */}
+          {/* Toggle mensual / anual */}
           <div className="flex bg-white border border-gray-200 rounded-xl p-1 mb-10 max-w-xs mx-auto shadow-sm">
             <button
-              onClick={() => setPlan("monthly")}
+              onClick={() => setBilling("monthly")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
-                !isAnnual
+                billing === "monthly"
                   ? "bg-italianto-800 text-white shadow"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t("pricing.planMonthly")}
+              {t("plans.toggleMonthly")}
             </button>
             <button
-              onClick={() => setPlan("annual")}
+              onClick={() => setBilling("annual")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                isAnnual
+                billing === "annual"
                   ? "bg-italianto-800 text-white shadow"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t("pricing.planAnnual")}
+              {t("plans.toggleAnnual")}
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                isAnnual ? "bg-white/20 text-white" : "bg-italianto-100 text-italianto-800"
+                billing === "annual" ? "bg-white/20 text-white" : "bg-italianto-100 text-italianto-800"
               }`}>
-                {t("pricing.savingsBadge")}
+                {t("plans.savingsBadge")}
               </span>
             </button>
           </div>
 
-          <div className="bg-italianto-800 text-white rounded-2xl overflow-hidden shadow-italianto-lg">
-            <div className="h-1.5" style={{background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)"}} />
-            <div className="p-8 md:p-10">
-              <div className="mb-2 text-italianto-300 font-medium">Italianto Dialogue Studio</div>
+          {/* Cards de planes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-start">
+            {PLANS.map((planId) => {
+              const isPopular = planId === "standard";
+              const features = tArray(`plans.${planId}.features`);
+              const price = billing === "annual"
+                ? t(`plans.${planId}.priceAnnual`)
+                : t(`plans.${planId}.priceMonthly`);
+              const period = billing === "annual" ? t("plans.perYear") : t("plans.perMonth");
 
-              <div className="flex items-baseline justify-center gap-1 mb-2">
-                <span className="text-6xl font-black">
-                  {isAnnual ? t("pricing.priceAnnual") : t("pricing.priceMonthly")}
-                </span>
-                <span className="text-italianto-300 text-xl">
-                  {isAnnual ? t("pricing.periodAnnual") : t("pricing.periodMonthly")}
-                </span>
-              </div>
+              return (
+                <div
+                  key={planId}
+                  className={`rounded-2xl overflow-hidden flex flex-col ${
+                    isPopular
+                      ? "bg-italianto-800 text-white shadow-2xl ring-2 ring-italianto-600"
+                      : "bg-white border border-gray-200 shadow-md"
+                  }`}
+                >
+                  <div className="h-1.5" style={{ background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)" }} />
 
-              {isAnnual && (
-                <div className="flex items-center justify-center gap-1.5 text-xs text-italianto-300 mb-2">
-                  <Zap size={11} />
-                  <span>vs $4.99/mes — un solo pago al año</span>
-                </div>
-              )}
-
-              <p className="text-italianto-300 text-sm mb-8">{t("pricing.cancel")}</p>
-
-              <ul className="text-left space-y-3 mb-8">
-                {features.map((f) => (
-                  <li key={f} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 bg-italianto-300/20 rounded-full flex items-center justify-center">
-                      <Check size={12} className="text-italianto-300" />
+                  <div className="p-6 flex flex-col flex-1">
+                    {/* Header */}
+                    <div className="mb-4">
+                      {isPopular && (
+                        <span className="inline-block text-xs font-bold px-2 py-1 bg-white/20 text-white rounded-full mb-2">
+                          {t("plans.popular")}
+                        </span>
+                      )}
+                      <h3 className={`text-xl font-bold ${isPopular ? "text-white" : "text-gray-900"}`}>
+                        {t(`plans.${planId}.name`)}
+                      </h3>
+                      <p className={`text-sm ${isPopular ? "text-italianto-200" : "text-gray-500"}`}>
+                        {t(`plans.${planId}.description`)}
+                      </p>
                     </div>
-                    <span className="text-sm text-italianto-100">{f}</span>
-                  </li>
-                ))}
-              </ul>
 
-              <Link
-                href={`/subscribe?plan=${plan}`}
-                className="block w-full py-4 bg-white text-italianto-900 font-bold rounded-xl hover:bg-italianto-50 transition-colors text-lg"
-              >
-                {t("pricing.cta")}
-              </Link>
-              <p className="text-xs text-italianto-400 mt-4">{t("pricing.stripe")}</p>
-            </div>
+                    {/* Precio */}
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-1">
+                        <span className={`text-4xl font-black ${isPopular ? "text-white" : "text-gray-900"}`}>
+                          {price}
+                        </span>
+                        <span className={`text-sm ${isPopular ? "text-italianto-300" : "text-gray-500"}`}>
+                          {period}
+                        </span>
+                      </div>
+                      {billing === "annual" && (
+                        <p className={`text-xs mt-1 ${isPopular ? "text-italianto-300" : "text-gray-400"}`}>
+                          {t("plans.annualNote")}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Features */}
+                    <ul className="space-y-2 mb-8 flex-1">
+                      {features.map((f) => (
+                        <li key={f} className="flex items-center gap-2">
+                          <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
+                            isPopular ? "bg-white/20" : "bg-italianto-50"
+                          }`}>
+                            <Check size={10} className={isPopular ? "text-white" : "text-italianto-700"} />
+                          </div>
+                          <span className={`text-sm ${isPopular ? "text-italianto-100" : "text-gray-700"}`}>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA */}
+                    <Link
+                      href={`/subscribe?billing=${billing}&planId=${planId}`}
+                      className={`block w-full py-3 text-center font-bold rounded-xl transition-colors ${
+                        isPopular
+                          ? "bg-white text-italianto-900 hover:bg-italianto-50"
+                          : "bg-italianto-800 text-white hover:bg-italianto-900"
+                      }`}
+                    >
+                      {t("plans.cta")}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* FAQ */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
-            {faq.map(({ q, a }) => (
-              <div key={q} className="p-4 bg-white rounded-xl border border-gray-100 text-left">
-                <p className="font-semibold text-gray-900 mb-1">{q}</p>
-                <p className="text-xs text-gray-500">{a}</p>
+          <h2 className="text-xl font-bold text-gray-900 text-center mb-6">{t("pricing.faqTitle")}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="p-4 bg-white rounded-xl border border-gray-100 text-left">
+                <p className="font-semibold text-gray-900 mb-1">{t(`pricing.faq.${i}.q`)}</p>
+                <p className="text-xs text-gray-500">{t(`pricing.faq.${i}.a`)}</p>
               </div>
             ))}
           </div>

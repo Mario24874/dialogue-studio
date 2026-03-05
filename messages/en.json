@@ -225,5 +225,69 @@
     "iosTitle": "Add to Home Screen",
     "iosSubtitle": "Tap Share → Add to Home Screen",
     "close": "×"
+  },
+
+  "plans": {
+    "toggleMonthly": "Monthly",
+    "toggleAnnual": "Annual",
+    "savingsBadge": "Save 33%",
+    "popular": "Most popular",
+    "cta": "Get started",
+    "subscribe": "Subscribe",
+    "redirecting": "Redirecting...",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "annualNote": "billed annually",
+    "stripe": "Secure payment with Stripe • Cancel anytime",
+    "legalPrefix": "By subscribing you agree to our",
+    "terms": "Terms of Service",
+    "and": "and",
+    "privacy": "Privacy Policy",
+    "errorPayment": "Error starting payment",
+    "errorConnection": "Connection error. Please try again.",
+    "basic": {
+      "name": "Basic",
+      "description": "Get started learning",
+      "priceMonthly": "$4.99",
+      "priceAnnual": "$39.99",
+      "features": [
+        "20 written dialogues / month",
+        "2 audios / month",
+        "2 characters per dialogue",
+        "ES / EN → Italian translation",
+        "Email support"
+      ]
+    },
+    "standard": {
+      "name": "Standard",
+      "description": "Practice every day",
+      "priceMonthly": "$9.99",
+      "priceAnnual": "$79.99",
+      "features": [
+        "80 written dialogues / month",
+        "30 audios / month",
+        "4 characters per dialogue",
+        "ES / EN → Italian translation",
+        "History (60 dialogues)",
+        "Export as TXT",
+        "Priority support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Unlimited professional use",
+      "priceMonthly": "$19.99",
+      "priceAnnual": "$159.99",
+      "features": [
+        "Unlimited dialogues",
+        "Unlimited audios",
+        "6 characters per dialogue",
+        "ES / EN / IT → Italian translation",
+        "Full history",
+        "Export as TXT and PDF",
+        "Advanced Studio",
+        "Priority support"
+      ]
+    }
   }
 }

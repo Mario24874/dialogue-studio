@@ -75,3 +75,29 @@ CREATE TRIGGER users_updated_at
 CREATE TRIGGER subscriptions_updated_at
   BEFORE UPDATE ON public.subscriptions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- =========================================
+-- MIGRACIÓN: Multi-plan pricing (2026-03)
+-- Ejecutar en Supabase SQL Editor si no se ha aplicado aún
+-- =========================================
+
+ALTER TABLE public.subscriptions
+  ADD COLUMN IF NOT EXISTS plan_type TEXT NOT NULL DEFAULT 'basic'
+    CHECK (plan_type IN ('basic', 'standard', 'pro')),
+  ADD COLUMN IF NOT EXISTS dialogues_used_this_month INT NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS audio_used_this_month INT NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS usage_reset_at TIMESTAMPTZ DEFAULT NOW();
+
+-- Función RPC para incrementar uso de forma atómica
+CREATE OR REPLACE FUNCTION increment_usage(p_user_id TEXT, p_type TEXT)
+RETURNS VOID AS $func$
+BEGIN
+  UPDATE public.subscriptions
+  SET
+    dialogues_used_this_month = CASE WHEN p_type = 'dialogue'
+      THEN dialogues_used_this_month + 1 ELSE dialogues_used_this_month END,
+    audio_used_this_month = CASE WHEN p_type = 'audio'
+      THEN audio_used_this_month + 1 ELSE audio_used_this_month END
+  WHERE user_id = p_user_id AND status IN ('active', 'trialing');
+END;
+$func$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';

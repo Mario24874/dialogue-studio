@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe, STRIPE_PRICE_MONTHLY, STRIPE_PRICE_ANNUAL, APP_URL } from "@/lib/stripe";
+import { getStripe, getValidPriceIds, APP_URL } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -12,10 +12,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
 
-    // Leer plan elegido por el usuario ("monthly" | "annual"), default monthly
     const body = await req.json().catch(() => ({}));
-    const plan: "monthly" | "annual" = body.plan === "annual" ? "annual" : "monthly";
-    const priceId = plan === "annual" ? STRIPE_PRICE_ANNUAL : STRIPE_PRICE_MONTHLY;
+    const planId: string = body.planId ?? "basic";
+    // Backward compat: body.plan="annual" (old subscribe page)
+    const billing: string =
+      body.billing === "annual" || body.plan === "annual" ? "annual" : "monthly";
+
+    const priceMap: Record<string, Record<string, string | undefined>> = {
+      basic:    { monthly: process.env.STRIPE_PRICE_ID_BASIC,            annual: process.env.STRIPE_PRICE_ID_BASIC_ANNUAL },
+      standard: { monthly: process.env.STRIPE_PRICE_ID_STANDARD_MONTHLY, annual: process.env.STRIPE_PRICE_ID_STANDARD_ANNUAL },
+      pro:      { monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY,       annual: process.env.STRIPE_PRICE_ID_PRO_ANNUAL },
+    };
+
+    const priceId = priceMap[planId]?.[billing];
+    if (!priceId || !getValidPriceIds().includes(priceId)) {
+      return NextResponse.json({ error: "Plan no válido" }, { status: 400 });
+    }
 
     const db = createServiceClient();
 
@@ -61,9 +73,9 @@ export async function POST(req: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${APP_URL}/studio?subscribed=true`,
       cancel_url: `${APP_URL}/pricing?canceled=true`,
-      metadata: { clerk_user_id: userId, plan },
+      metadata: { clerk_user_id: userId, plan_id: planId, billing },
       subscription_data: {
-        metadata: { clerk_user_id: userId, plan },
+        metadata: { clerk_user_id: userId, plan_id: planId, billing },
       },
       allow_promotion_codes: true,
       billing_address_collection: "auto",

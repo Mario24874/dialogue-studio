@@ -25,17 +25,18 @@ El usuario ingresa un diálogo en español o inglés, configura los personajes (
 
 | Capa | Tecnología | Versión | Notas |
 |------|-----------|---------|-------|
-| Framework | Next.js | 15.4.7 | App Router |
+| Framework | Next.js | **15.4.11** | App Router (actualizado por CVE-2025-55182) |
 | UI | React + TypeScript | 19.1.0 / 5.9.2 | |
-| Estilos | Tailwind CSS v4 | 4.1.12 | Config vía `@theme` en CSS, NO tailwind.config.ts |
-| PostCSS | @tailwindcss/postcss | 4.2.1 | **Requerido** para que Tailwind v4 funcione |
+| Estilos | Tailwind CSS v4 | 4.x | Config vía `@theme` en CSS, NO tailwind.config.ts |
+| PostCSS | @tailwindcss/postcss | 4.x | **Requerido** para que Tailwind v4 funcione |
 | Auth | Clerk (@clerk/nextjs) | 6.x | Condicional si no hay keys configuradas |
 | Base de datos | Supabase | 2.x | PostgreSQL gestionado |
 | Pagos | Stripe | 17.x | Suscripción $4.99/mes |
-| Traducción IA | Anthropic Claude Haiku | claude-haiku-4-5-20251001 | Carga dinámica, solo en modo live |
+| Traducción IA (testing) | Google Gemini 2.0 Flash | gemini-2.0-flash | Primario; fallback a 1.5-flash (GEMINI_API_KEY) |
+| Traducción IA (prod) | Anthropic Claude Haiku | claude-haiku-4-5-20251001 | Requiere ANTHROPIC_API_KEY |
 | Audio TTS | ElevenLabs | eleven_multilingual_v2 | Voces por personaje |
-| APK | Capacitor v7 | 7.2.0 | Wrapper nativo que carga URL de Netlify |
-| Deploy | Netlify | — | @netlify/plugin-nextjs |
+| APK | Capacitor v7 | 7.x | Wrapper nativo que carga URL de Netlify |
+| Deploy | Netlify | — | @netlify/plugin-nextjs, publish=".next" |
 | Iconos | lucide-react | 0.474.0 | |
 | Estado | zustand | 5.0.3 | Instalado, disponible para uso futuro |
 | Forms | react-hook-form + zod | 7.x / 3.x | Instalado, disponible para uso futuro |
@@ -74,10 +75,25 @@ dialogue-studio/
 │   │   │
 │   │   ├── studio/page.tsx       # App principal — flujo de 4 pasos (protegida)
 │   │   │
+│   │   ├── admin/                        # Portal de administración (requiere ADMIN_EMAILS)
+│   │   │   ├── layout.tsx                # Verifica isAdmin() → redirect si no es admin
+│   │   │   ├── page.tsx                  # Dashboard con stats (client: fetch /api/admin/stats)
+│   │   │   ├── _sidebar.tsx              # Sidebar de navegación admin
+│   │   │   ├── users/page.tsx            # Lista de usuarios
+│   │   │   ├── subscriptions/page.tsx    # Gestión de suscripciones
+│   │   │   ├── dialogues/page.tsx        # Historial de diálogos generados
+│   │   │   └── coupons/page.tsx          # Gestión de cupones
+│   │   │
 │   │   └── api/
-│   │       ├── translate/route.ts         # Traducción al italiano (Claude o mock)
+│   │       ├── translate/route.ts         # Traducción: Gemini 2.0 Flash / Claude / mock
 │   │       ├── generate-audio/route.ts    # Generación de audio MP3 (ElevenLabs)
 │   │       ├── subscription/route.ts      # Verificar suscripción activa
+│   │       ├── admin/                     # APIs admin (requieren isAdmin())
+│   │       │   ├── stats/route.ts
+│   │       │   ├── users/route.ts
+│   │       │   ├── subscriptions/route.ts
+│   │       │   ├── dialogues/route.ts
+│   │       │   └── coupons/route.ts
 │   │       └── stripe/
 │   │           ├── checkout/route.ts      # Crear Stripe Checkout Session
 │   │           └── webhook/route.ts       # Procesar eventos Stripe
@@ -92,8 +108,9 @@ dialogue-studio/
 │   │
 │   ├── lib/
 │   │   ├── utils.ts              # cn() helper (clsx + tailwind-merge)
-│   │   ├── supabase.ts           # supabase client + createServiceClient()
-│   │   └── stripe.ts             # stripe client + constantes
+│   │   ├── supabase.ts           # supabase client + createServiceClient() (lazy)
+│   │   ├── stripe.ts             # stripe client + getStripe() (lazy singleton)
+│   │   └── admin.ts              # isAdmin(userId) → verifica ADMIN_EMAILS env var
 │   │
 │   └── middleware.ts             # Modo preview (pass-through) / producción (Clerk)
 │
@@ -170,6 +187,15 @@ Descomentar en `src/middleware.ts` el bloque de Clerk comentado y reactivar el C
 | `/studio` | Autenticado + suscripción activa |
 | `/api/translate` `/api/generate-audio` | Autenticado + suscripción activa |
 | `/api/stripe/webhook` | Público (verificado por firma Stripe) |
+| `/admin` y `/admin/*` | Autenticado + email en `ADMIN_EMAILS` |
+| `/api/admin/*` | Autenticado + `isAdmin()` = true |
+
+### Portal de Administración
+- **Acceso**: solo si el email del usuario está en la env var `ADMIN_EMAILS` (CSV)
+- **Email superadmin**: `italiantonline@gmail.com`
+- **Env var Netlify**: `ADMIN_EMAILS=italiantonline@gmail.com`
+- **Sin esta var**: `isAdmin()` siempre retorna false → redirect silencioso a `/`
+- El usuario debe estar registrado en Clerk (sign-up) para que Clerk conozca su email
 
 ---
 
@@ -318,12 +344,19 @@ npx cap open android
 ## 🚀 Deploy en Netlify
 
 ### Configuración (netlify.toml)
-- Build command: `npm run build`
+- Build command: `npm run build && mkdir -p .next/_next && cp -r .next/static .next/_next/`
+  - **El copy es crítico**: sin él, `/_next/static/` no existe en el CDN y todos los chunks dan 404
 - Publish dir: `.next`
 - Plugin: `@netlify/plugin-nextjs`
 - Node: 20
 - Headers de seguridad aplicados globalmente
+- Cache inmutable para `/_next/static/*` (content-hashed)
 - Webhook de Stripe sin caché
+
+### ⚠️ Problema grave conocido: Netlify blob store eviction
+El blob store de Netlify puede purgar blobs de builds anteriores. El delta-deployment no re-sube blobs que "cree" que existen. Síntoma: chunks dan 404 aunque el build sea exitoso. Los mismos hashes siguen apareciendo tras múltiples deploys.
+
+**Solución definitiva**: borrar el proyecto Netlify y recrearlo (blob store nuevo). Todos los archivos se suben desde cero en el primer deploy. Ver sección de Registro de Cambios [2026-03-04] para el proceso completo.
 
 ### Pasos de deploy
 ```bash
@@ -360,7 +393,8 @@ npx cap open android
 | `NEXT_PUBLIC_APP_URL` | App | Siempre | `http://localhost:3000` en dev |
 | `ELEVENLABS_API_KEY` | ElevenLabs | Siempre | Ya configurada |
 | `ANTHROPIC_API_KEY` | Anthropic | Solo live | No necesaria en mock |
-| `TRANSLATION_MODE` | App | Siempre | `mock` (testing) / `live` (prod) |
+| `TRANSLATION_MODE` | App | Siempre | `mock` (testing sin API) / ausente (usa ANTHROPIC o GEMINI) |
+| `ADMIN_EMAILS` | App | Para admin | CSV de emails con acceso al portal admin. Ej: `italiantonline@gmail.com` |
 
 ---
 
@@ -524,48 +558,357 @@ Netlify bloqueó el deploy porque Next.js 15.4.7 tiene una vulnerabilidad críti
 
 ---
 
+---
+
+### [2026-03-04] — Claude Code Agent — Fix chunks 404 + traducción funcional + documentación
+
+**Contexto**: el sitio tenía chunks `/_next/static/chunks/*.js` dando 404 permanentemente en Netlify. Múltiples sesiones de debugging.
+
+**Causa raíz confirmada**: Netlify blob store evicta blobs de builds anteriores. El delta-deployment omite re-subir blobs que "cree" que existen. Cuando esos blobs son purgados, los chunks dan 404 para siempre, independientemente de los deploys siguientes.
+
+**Lo que se intentó (no funcionó)**:
+- `Cache-Control: no-store` para `/*` → rompe CDN
+- `force-dynamic` en root layout → rompe upload de chunks estáticos
+- `hashSalt` en webpack → no afecta `contenthash`
+- `/_next/static/*` → `/static/:splat` redirect → HTML 404
+- `NEXT_PUBLIC_BUILD_TIME` como variable muerta → tree-shaking la elimina
+- `generateBuildId` → no cambia contenthash de código sin cambios
+
+**Fix definitivo aplicado**:
+1. Borrado y recreación del proyecto Netlify → blob store nuevo → primer deploy sube todo desde cero ✅
+2. En el proceso, se agregó `uuid` a `package.json` (peer dep de `svix`/Clerk faltante)
+3. Build command en netlify.toml: `npm run build && mkdir -p .next/_next && cp -r .next/static .next/_next/` (garantiza path `/_next/static/`)
+
+**Fix de `/api/translate` (500 post-recreación)**:
+- Causa: `gemini-3-flash-preview` como modelo primario lanzaba errores no-quota → no hacía fallback
+- Fix: cambiar orden a `["gemini-2.0-flash", "gemini-1.5-flash", "gemini-3-flash-preview"]`
+- Fix: el loop de modelos ahora prueba TODOS ante cualquier error (no solo 429)
+- Archivo: `src/app/api/translate/route.ts`
+
+**Estado final**:
+- ✅ Chunks cargan correctamente (nuevos hashes, nuevos blobs)
+- ✅ Generación de diálogos escritos funciona
+- ✅ Generación de audio funciona
+- ⏳ Portal admin: requiere agregar `ADMIN_EMAILS=italiantonline@gmail.com` en Netlify env vars
+
+**Commits de esta sesión**:
+- `189913a` — fix: generateBuildId with timestamp
+- `b214b74` — fix: force-dynamic on root layout (luego revertido)
+- `70248f1` — fix: no-cache headers
+- `8aaa2b0` — fix: add no-cache headers for HTML pages
+- `35bde88` — fix: add manifest.json to public routes
+- + commits adicionales de esta sesión (gemini model fix)
+
+---
+
 ## ⏭️ Próximos Pasos
 
-### Inmediato — Configurar credenciales de producción
-1. **Clerk** → crear app en dashboard.clerk.com → copiar 2 keys → agregar a Netlify env vars y `.env.local`
-2. **Supabase** → crear proyecto → ejecutar `supabase/schema.sql` → copiar 3 keys
-3. **Stripe** → crear producto $4.99/mes → copiar price ID y 3 keys → configurar webhook
-4. **Restaurar middleware Clerk** → descomentar bloque en `src/middleware.ts`
-5. **ElevenLabs** → obtener API key → agregar a Netlify env vars
-6. **Probar flujo completo** con `TRANSLATION_MODE=mock` + tarjeta Stripe `4242 4242 4242 4242`
-7. **Activar Claude** → API key → cambiar `TRANSLATION_MODE=live`
-8. **Capacitor** → actualizar URL en `capacitor.config.ts` → generar APK
+### Estado actual (2026-03-04)
+✅ Deploy exitoso en https://dialogue-studio.netlify.app
+✅ Clerk configurado (dev keys) — `ADMIN_EMAILS=italiantonline@gmail.com,marioivanmorenopineda@gmail.com`
+✅ Supabase configurado (schema aplicado)
+✅ Stripe configurado (test mode, webhook activo, plan $4.99/mes)
+✅ ElevenLabs configurado
+✅ Gemini configurado (AI Studio key, cuota gratuita) — modelo primario: `gemini-2.0-flash`
+✅ Generación de diálogos escritos y audio funcionando
+✅ Portal admin accesible (`/admin`) — stats, usuarios, suscripciones, diálogos, cupones
+⏳ Anthropic Claude: pendiente (requiere créditos en console.anthropic.com)
+⏳ Dominio propio + producción: pendiente
+⚠️  Chunks prefetch 404 en Netlify (cosmético — páginas cargan bien via SSR, solo afecta prefetch)
 
-### Próxima sesión — Nuevas funcionalidades planificadas
+---
+
+## 🗺️ Roadmap de Funcionalidades
+
+### PRIORIDAD ALTA — Planes y límites
+
+#### 1. Reestructuración de planes Stripe
+**Objetivo**: pasar de 1 plan a 3 opciones de suscripción.
+
+| Plan | Precio | Límite | Acceso |
+|------|--------|--------|--------|
+| **Básico mensual** | $4.99/mes | 30 diálogos/mes | Solo Studio básico |
+| **Ilimitado mensual** | $9.99/mes | Sin límite | Studio básico + Studio Avanzado |
+| **Ilimitado anual** | ~$79.99/año (~$6.67/mes) | Sin límite | Studio básico + Studio Avanzado |
+
+**Cambios requeridos**:
+- Crear 3 precios en Stripe Dashboard (mantener el de $4.99 existente, crear 2 nuevos)
+- Agregar campo `plan_type` (`basic` | `unlimited`) y `dialogues_used_this_month` (int) y `dialogues_reset_at` (date) en tabla `subscriptions` de Supabase
+- Webhook Stripe: actualizar lógica para guardar `plan_type` según `price_id`
+- Página `/subscribe`: mostrar los 3 planes con toggle mensual/anual
+- API `/api/translate` y `/api/generate-audio`: verificar cuota antes de ejecutar
+- Cron job mensual para reset de `dialogues_used_this_month` (Netlify Scheduled Functions o Supabase pg_cron)
+- Portal admin: columna `plan_type` en vista de suscripciones
+
+#### 2. Sistema de límites y cuotas
+- Función `checkQuota(userId)` en `src/lib/quota.ts`: consulta Supabase, retorna `{ allowed: boolean, used: number, limit: number }`
+- Llamar en `/api/translate` antes de procesar; retornar 403 con mensaje claro si cuota agotada
+- UI en Studio: mostrar contador "X de 30 diálogos usados este mes" para plan Básico
+- UI en Studio: badge "Ilimitado" para plan Pro
+
+---
+
+### PRIORIDAD ALTA — Studio Avanzado (exclusivo plan Ilimitado)
+
+#### 3. Nueva sección: Studio Avanzado (`/studio/advanced`)
+**Concepto**: el usuario puede subir un documento (texto, PDF o imagen con texto legible) O escribir texto directamente en español, inglés o italiano. La IA lo analiza y genera un diálogo según el tipo seleccionado.
+
+**Tipos de diálogo disponibles**:
+- 🎩 **Diálogo Formal** — lenguaje cuidado, cortés, profesional
+- 💬 **Diálogo Informal** — conversacional, natural, coloquial
+- 🔬 **Diálogo Técnico** — terminología específica del dominio del texto
+
+**Flujos soportados**:
+1. **ES/EN → Italiano**: traduce y genera diálogo del tipo elegido
+2. **IT → IT**: texto ya en italiano, solo lo transforma al estilo elegido (formal/informal/técnico)
+3. **Subir archivo**: extrae texto del archivo y luego aplica flujo 1 o 2
+
+**Formatos de archivo soportados**:
+- `.txt` — extracción trivial
+- `.pdf` — librería `pdf-parse` o `pdfjs-dist` (server-side)
+- `.jpg/.png/.webp` — OCR via Gemini Vision o Claude Vision (modelos multimodal)
+
+**Restricción de acceso**: verificar `plan_type === 'unlimited'` antes de renderizar/procesar.
+
+**Arquitectura propuesta**:
+```
+/studio/advanced/page.tsx          → UI del studio avanzado (force-dynamic, verifica plan)
+/api/advanced-translate/route.ts   → Procesa input (texto o archivo) + genera diálogo tipado
+/api/extract-text/route.ts         → Extrae texto de PDF/imagen (usado internamente)
+```
+
+**Pasos del flujo UI (4 pasos como el Studio básico)**:
+1. Fuente del contenido: escribir texto | subir archivo (drag & drop)
+2. Idioma de entrada + tipo de diálogo (Formal / Informal / Técnico)
+3. Configurar personajes (igual que studio básico)
+4. Resultado: diálogo escrito + opción de generar audio
+
+#### 4. Estrategia para "alimentar a la IA" con ejemplos de estilo
+
+**Recomendación: Few-shot prompting con ejemplos embebidos en el prompt**
+
+Esta es la estrategia más costo-efectiva y flexible. En lugar de fine-tuning (caro, complejo) o RAG (necesita base vectorial), se incluyen 2-3 ejemplos de cada tipo de diálogo directamente en el system prompt:
+
+```
+EJEMPLOS DE DIÁLOGO FORMAL (de referencia):
+Input: "Marco le dice a Sofia que la reunión se pospuso"
+Output:
+Marco. Gentile Sofia, Le comunico che la riunione prevista per oggi è stata posticipata.
+Sofia. La ringrazio per la tempestiva comunicazione, Marco. Quando è prevista la nuova data?
+
+EJEMPLOS DE DIÁLOGO INFORMAL:
+Input: "Marco le dice a Sofia que la reunión se pospuso"
+Output:
+Marco. Ehi Sofia! La riunione di oggi salta, ci vediamo un altro giorno.
+Sofia. Ah dai, ma quando?
+
+EJEMPLOS DE DIÁLOGO TÉCNICO (dominio: medicina):
+[ejemplo con terminología específica]
+```
+
+**Archivo de ejemplos**: `src/lib/dialogue-examples.ts` — exporta objetos con ejemplos por tipo. Fácil de expandir sin tocar la lógica de la API.
+
+---
+
+### PRIORIDAD MEDIA
+
 | Funcionalidad | Descripción | Prioridad |
 |--------------|-------------|-----------|
-| **Selector de idioma de UI** | Cambiar la interfaz entre Español / Italiano / Inglés (i18n) | Alta |
-| **Límites de generación** | Replanteamiento del sistema de cuotas (diálogos/mes según plan) | Alta |
-| **Planes múltiples** | Ej: Básico (50 diálogos/mes), Pro (ilimitado), Anual | Alta |
-| **Sistema de cupones** | Códigos de descuento via Stripe Promotions | Media |
-| **Modo oscuro** | Dark mode con Tailwind v4 + persistencia en localStorage | Media |
-| **Configuración de perfil** | Nombre, avatar, idioma preferido, plan actual, historial | Media |
-| **Historial de diálogos** | Tabla `dialogues` ya existe en Supabase, falta UI | Media |
+| **Selector de idioma de UI** | Interfaz en ES / IT / EN (next-intl o react-i18next) | Media |
+| **Sistema de cupones** | Stripe Promotions API + UI de canje en `/subscribe` | Media |
 | **Stripe Customer Portal** | Portal para gestionar/cancelar suscripción | Media |
+| **Modo oscuro** | Tailwind v4 dark variant + toggle en header + localStorage | Media |
+| **Configuración de perfil** | Nombre, avatar, idioma, plan actual, historial | Media |
+| **Historial de diálogos** | Tabla `dialogues` ya existe en Supabase, falta UI en studio y admin | Media |
 | **Preview de voces** | Botón para escuchar muestra de cada voz ElevenLabs | Baja |
 | **Descarga PDF/TXT** | Exportar diálogo escrito en múltiples formatos | Baja |
 | **Amazon App Store** | Publicar APK en tienda Amazon | Baja |
 
-### Notas de arquitectura para próximas features
+---
+
+### Notas de arquitectura
 
 **i18n (selector de idioma):**
 - Usar `next-intl` o `react-i18next` con detección automática del navegador
 - Guardar preferencia en Supabase `users.preferred_language`
 - 3 idiomas: `es` (default), `it`, `en`
-- Las traducciones de la UI en archivos `messages/es.json`, `messages/it.json`, `messages/en.json`
-
-**Planes múltiples:**
-- Crear 3 prices en Stripe (mensual Básico, mensual Pro, anual Pro)
-- Agregar campo `plan_type` y `dialogues_used_this_month` en tabla `subscriptions`
-- Reset del contador el 1 de cada mes (cron job en Netlify o Supabase Edge Function)
-- Middleware que verifica cuota antes de permitir generación
+- Archivos: `messages/es.json`, `messages/it.json`, `messages/en.json`
 
 **Modo oscuro:**
-- Tailwind v4 soporta dark mode con `@variant dark { ... }` en globals.css
-- Usar `data-theme` attribute en `<html>` + localStorage para persistencia
-- Toggle en el header y en configuración de perfil
+- Tailwind v4: `@variant dark { ... }` en globals.css
+- `data-theme` en `<html>` + localStorage para persistencia
+- Toggle en header y perfil
+
+**Cron job reset de cuotas:**
+- Opción A: Netlify Scheduled Functions (`netlify/functions/reset-quotas.ts` con schedule `0 0 1 * *`)
+- Opción B: Supabase pg_cron (extensión PostgreSQL, más confiable)
+- **Recomendado: Supabase pg_cron** — corre dentro de la DB, sin dependencia de Netlify
+
+---
+
+## 🧭 Agenda de Implementación — Guía para próximas sesiones
+
+> **Principio rector**: construir en orden de dependencias. Los planes y límites son la base que habilita el Studio Avanzado. No implementar el Studio Avanzado antes de tener `plan_type` funcionando en Supabase y Stripe.
+
+---
+
+### FASE 1 — Planes y estructura Stripe (implementar primero)
+
+**Objetivo**: pasar de 1 plan a 3, con `plan_type` guardado en Supabase.
+
+#### Paso 1.1 — Stripe Dashboard (manual, sin código)
+Crear 4 precios nuevos (mantener el de $4.99 existente):
+
+**Productos y precios creados en Stripe (test mode) — 2026-03-05:**
+
+| Env var | Price ID | Monto | Producto |
+|---------|----------|-------|---------|
+| `STRIPE_PRODUCT_ID_BASIC` | `prod_U57o8mdEXcESBY` | — | Studio Basic |
+| `STRIPE_PRICE_ID_BASIC` | `price_1T6xYjIVhzJhQHiFWfLiq3b9` | $4.99/mes | Studio Basic |
+| `STRIPE_PRICE_ID_BASIC_ANNUAL` | `price_1T6y2hIVhzJhQHiFDYzzMnvQ` | $39.99/año | Studio Basic |
+| `STRIPE_PRODUCT_ID_STANDARD` | `prod_U5pIXWGGFlRA5W` | — | Studio Standard |
+| `STRIPE_PRICE_ID_STANDARD_MONTHLY` | `price_1T7deCIVhzJhQHiFraUZGGsK` | $9.99/mes | Studio Standard |
+| `STRIPE_PRICE_ID_STANDARD_ANNUAL` | `price_1T7df7IVhzJhQHiFzXKmGbIt` | $79.99/año | Studio Standard |
+| `STRIPE_PRODUCT_ID_PRO` | `prod_U5pUDcUon4Q6t0` | — | Studio Pro |
+| `STRIPE_PRICE_ID_PRO_MONTHLY` | `price_1T7dpBIVhzJhQHiFXPqeLnkG` | $19.99/mes | Studio Pro |
+| `STRIPE_PRICE_ID_PRO_ANNUAL` | `price_1T7dpoIVhzJhQHiFyFogCPiC` | $159.99/año | Studio Pro |
+
+**Mapeo product_id → plan_type (usado en webhook):**
+- `prod_U57o8mdEXcESBY` → `basic`
+- `prod_U5pIXWGGFlRA5W` → `standard`
+- `prod_U5pUDcUon4Q6t0` → `pro`
+
+- [x] Precios creados en Stripe Dashboard ✅
+- [ ] Agregar las 9 env vars arriba a Netlify y `.env.local`
+
+#### Paso 1.2 — Supabase: migración de schema
+Ejecutar en Supabase SQL Editor:
+```sql
+ALTER TABLE subscriptions
+  ADD COLUMN IF NOT EXISTS plan_type TEXT NOT NULL DEFAULT 'basic'
+    CHECK (plan_type IN ('basic', 'unlimited')),
+  ADD COLUMN IF NOT EXISTS dialogues_used_this_month INT NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS dialogues_reset_at TIMESTAMPTZ DEFAULT NOW();
+```
+
+#### Paso 1.3 — Código: webhook Stripe
+Archivo: `src/app/api/stripe/webhook/route.ts`
+- En `checkout.session.completed`: leer `price_id` del evento, mapear a `plan_type` (`basic` o `unlimited`), guardar en Supabase.
+- En `customer.subscription.updated`: actualizar `plan_type` si cambia de plan.
+
+#### Paso 1.4 — Código: lógica de cuotas
+Archivo nuevo: `src/lib/quota.ts`
+```typescript
+// Funciones a implementar:
+checkQuota(userId): Promise<{ allowed: boolean, used: number, limit: number, planType: string }>
+incrementUsage(userId): Promise<void>
+getPlanLimit(planType: string): number  // basic=30, unlimited=Infinity
+```
+
+#### Paso 1.5 — Código: APIs de generación con verificación de cuota
+Archivos: `src/app/api/translate/route.ts` y `src/app/api/generate-audio/route.ts`
+- Llamar `checkQuota(userId)` al inicio del handler
+- Si `!allowed`: retornar 403 con mensaje "Has alcanzado tu límite de 30 diálogos este mes. Actualiza a plan Ilimitado."
+- Después de generar con éxito: llamar `incrementUsage(userId)`
+
+#### Paso 1.6 — Código: tabla de planes en `/pricing` y `/subscribe`
+Archivos: `src/app/pricing/page.tsx` y `src/app/subscribe/page.tsx`
+
+**Planes confirmados:**
+
+| Plan | Mensual | Anual | Ahorro anual |
+|------|---------|-------|-------------|
+| Básico | $4.99/mes | — | — |
+| Estándar | $9.99/mes | $79.99/año | 33% ($6.67/mes efectivo) |
+| Pro | $19.99/mes | $159.99/año | 33% ($13.33/mes efectivo) |
+
+**Funcionalidades por plan:**
+
+| Funcionalidad | Básico | Estándar | Pro |
+|---|:---:|:---:|:---:|
+| Studio básico (texto escrito) | ✅ | ✅ | ✅ |
+| Idiomas de entrada | ES/EN | ES/EN | ES/EN/IT |
+| Diálogos escritos/mes | 20 | 80 | Ilimitado |
+| Generación de audio/mes | 2 | 30 | Ilimitado |
+| Personajes por diálogo | 2 | 4 | 6 |
+| Historial de diálogos | ❌ | Últimos 60 | Ilimitado |
+| Studio Avanzado (PDF/imagen) | ❌ | ❌ | ✅ |
+| Tipo: Formal/Informal/Técnico | ❌ | ❌ | ✅ |
+| IT → IT (transformar estilo) | ❌ | ❌ | ✅ |
+| Exportar TXT | ❌ | ✅ | ✅ |
+| Exportar PDF | ❌ | ❌ | ✅ |
+
+**Requisitos de implementación:**
+- Toggle "mensual / anual" con badge "Ahorra 33%" al activar anual
+- Diseño moderno coherente con identidad Italianto (verde #2e7d32, franja bandera italiana)
+- Textos multiidioma via `useLanguage()` + claves en `messages/es.json`, `it.json`, `en.json`
+- Plan "Estándar" destacado como "Más popular" visualmente
+- `/pricing` → enfoque marketing: visual, comparativo, CTA "Empezar ahora", accesible sin login
+- `/subscribe` → enfoque funcional: usuario ya logueado, cada card con botón que llama a `POST /api/stripe/checkout` con el `price_id` del plan elegido
+
+#### Paso 1.7 — UI Studio: indicador de cuota
+Archivo: `src/app/studio/page.tsx`
+- Fetch a nuevo endpoint `GET /api/subscription` (ya existe, extender para devolver `plan_type`, `used`, `limit`)
+- Mostrar banner para plan Básico: "Diálogos usados: X / 30 este mes"
+- Mostrar badge "Ilimitado ✓" para plan Pro
+
+#### Paso 1.8 — Cron job: reset mensual
+Opción recomendada — Supabase pg_cron (activar extensión en Supabase Dashboard → Extensions → pg_cron):
+```sql
+SELECT cron.schedule(
+  'reset-monthly-dialogues',
+  '0 0 1 * *',  -- a las 00:00 del día 1 de cada mes
+  $$UPDATE subscriptions SET dialogues_used_this_month = 0, dialogues_reset_at = NOW()$$
+);
+```
+
+---
+
+### FASE 2 — Studio Avanzado (después de Fase 1 completa)
+
+**Prerequisito**: `plan_type` en Supabase funcionando y verificado.
+
+#### Paso 2.1 — Ejemplos de diálogo para few-shot prompting
+Archivo nuevo: `src/lib/dialogue-examples.ts`
+- Definir 3 ejemplos por tipo (Formal, Informal, Técnico)
+- Cada ejemplo: `{ input, output, language }` — cubrir casos ES→IT, EN→IT, IT→IT
+- Estos ejemplos se inyectan en el system prompt de la IA
+
+#### Paso 2.2 — API: extracción de texto
+Archivo nuevo: `src/app/api/extract-text/route.ts`
+- `text/plain`: retorna el texto directamente
+- `application/pdf`: usa `pdf-parse` (npm install pdf-parse)
+- `image/*`: usa Gemini Vision (`gemini-2.0-flash` soporta imágenes, ya tenemos la API key)
+- Límites: 5MB imágenes, 10MB PDFs, 50KB texto plano
+
+#### Paso 2.3 — API: generación de diálogo avanzado
+Archivo nuevo: `src/app/api/advanced-translate/route.ts`
+- Input: `{ text, sourceLang, targetType: 'formal'|'informal'|'technical', characters[] }`
+- Verificar `plan_type === 'unlimited'` (retornar 403 si es básico)
+- Construir prompt con ejemplos de `dialogue-examples.ts` según `targetType`
+- Reutilizar la lógica de Gemini/Claude de `/api/translate`
+
+#### Paso 2.4 — UI: página Studio Avanzado
+Archivo nuevo: `src/app/studio/advanced/page.tsx`
+- Guard al inicio: si `plan_type !== 'unlimited'` → mostrar CTA de upgrade, no el studio
+- Paso 1: Fuente → escribir texto | subir archivo (drag & drop con preview)
+- Paso 2: Idioma entrada (ES/EN/IT) + tipo de diálogo (Formal/Informal/Técnico)
+- Paso 3: Configurar personajes (reutilizar `CharacterBuilder`)
+- Paso 4: Resultado → texto + botón generar audio (reutiliza `/api/generate-audio`)
+
+#### Paso 2.5 — Navegación
+- Agregar link "Studio Avanzado" en el header (visible solo si `plan_type === 'unlimited'`)
+- O mostrar siempre con candado 🔒 → al hacer click muestra modal de upgrade
+
+---
+
+### Recomendaciones y principios para la implementación
+
+1. **Orden estricto**: Fase 1 completa antes de Fase 2. `plan_type` es prerequisito de todo.
+2. **Few-shot prompting sobre fine-tuning**: 3-4 ejemplos por tipo en el prompt son suficientes para Gemini 2.0 Flash y Claude Haiku. No se necesita fine-tuning (caro, lento) ni RAG (sobreingeniería).
+3. **Gemini Vision para OCR de imágenes**: ya tenemos la API key. `gemini-2.0-flash` acepta imágenes directamente. No agregar Google Vision API por separado.
+4. **pdf-parse para PDFs**: librería npm pura, sin APIs externas, funciona en Netlify serverless.
+5. **Límite Básico = 30 diálogos/mes**: suficiente para probar, insuficiente para uso intensivo. Mostrar el contador visiblemente crea urgencia de upgrade.
+6. **El contador debe mostrarse siempre** en el Studio para usuarios Básico: "Te quedan X de 30 diálogos". La visibilidad del límite es un mecanismo de conversión.
+7. **Precio anual sugerido**: $79.99/año (33% de descuento vs $9.99×12=$119.88). Destacar el ahorro en la UI: "Ahorra $39 al año".
+8. **Webhook primero**: sin el webhook actualizado que guarda `plan_type`, toda la Fase 1 falla. Es el primer archivo de código a modificar después de crear los precios en Stripe.

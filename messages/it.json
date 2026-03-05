@@ -225,5 +225,69 @@
     "iosTitle": "Aggiungi alla schermata Home",
     "iosSubtitle": "Tocca Condividi → Aggiungi a Home",
     "close": "×"
+  },
+
+  "plans": {
+    "toggleMonthly": "Mensile",
+    "toggleAnnual": "Annuale",
+    "savingsBadge": "Risparmia 33%",
+    "popular": "Più popolare",
+    "cta": "Inizia",
+    "subscribe": "Abbonati",
+    "redirecting": "Reindirizzamento...",
+    "perMonth": "/mese",
+    "perYear": "/anno",
+    "annualNote": "fatturato annualmente",
+    "stripe": "Pagamento sicuro con Stripe • Cancella quando vuoi",
+    "legalPrefix": "Iscrivendoti accetti i nostri",
+    "terms": "Termini di Utilizzo",
+    "and": "e",
+    "privacy": "Informativa sulla Privacy",
+    "errorPayment": "Errore nell'avvio del pagamento",
+    "errorConnection": "Errore di connessione. Riprova.",
+    "basic": {
+      "name": "Base",
+      "description": "Per iniziare ad imparare",
+      "priceMonthly": "$4.99",
+      "priceAnnual": "$39.99",
+      "features": [
+        "20 dialoghi scritti / mese",
+        "2 audio / mese",
+        "2 personaggi per dialogo",
+        "Traduzione ES / EN → italiano",
+        "Supporto via email"
+      ]
+    },
+    "standard": {
+      "name": "Standard",
+      "description": "Pratica ogni giorno",
+      "priceMonthly": "$9.99",
+      "priceAnnual": "$79.99",
+      "features": [
+        "80 dialoghi scritti / mese",
+        "30 audio / mese",
+        "4 personaggi per dialogo",
+        "Traduzione ES / EN → italiano",
+        "Cronologia (60 dialoghi)",
+        "Esporta in TXT",
+        "Supporto prioritario"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Uso professionale illimitato",
+      "priceMonthly": "$19.99",
+      "priceAnnual": "$159.99",
+      "features": [
+        "Dialoghi illimitati",
+        "Audio illimitati",
+        "6 personaggi per dialogo",
+        "Traduzione ES / EN / IT → italiano",
+        "Cronologia completa",
+        "Esporta in TXT e PDF",
+        "Studio Avanzato",
+        "Supporto prioritario"
+      ]
+    }
   }
 }

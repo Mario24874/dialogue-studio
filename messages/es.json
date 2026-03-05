@@ -223,5 +223,69 @@
     "iosTitle": "Agregar a pantalla de inicio",
     "iosSubtitle": "Toca Compartir → Añadir a inicio",
     "close": "×"
+  },
+
+  "plans": {
+    "toggleMonthly": "Mensual",
+    "toggleAnnual": "Anual",
+    "savingsBadge": "Ahorra 33%",
+    "popular": "Más popular",
+    "cta": "Comenzar",
+    "subscribe": "Suscribirme",
+    "redirecting": "Redirigiendo...",
+    "perMonth": "/mes",
+    "perYear": "/año",
+    "annualNote": "facturado anualmente",
+    "stripe": "Pago seguro con Stripe • Cancela cuando quieras",
+    "legalPrefix": "Al suscribirte aceptas nuestros",
+    "terms": "Términos de Uso",
+    "and": "y",
+    "privacy": "Política de Privacidad",
+    "errorPayment": "Error al iniciar el pago",
+    "errorConnection": "Error de conexión. Intenta de nuevo.",
+    "basic": {
+      "name": "Básico",
+      "description": "Para empezar a aprender",
+      "priceMonthly": "$4.99",
+      "priceAnnual": "$39.99",
+      "features": [
+        "20 diálogos escritos / mes",
+        "2 audios / mes",
+        "2 personajes por diálogo",
+        "Traducción ES / EN → italiano",
+        "Soporte por email"
+      ]
+    },
+    "standard": {
+      "name": "Standard",
+      "description": "Para practicar cada día",
+      "priceMonthly": "$9.99",
+      "priceAnnual": "$79.99",
+      "features": [
+        "80 diálogos escritos / mes",
+        "30 audios / mes",
+        "4 personajes por diálogo",
+        "Traducción ES / EN → italiano",
+        "Historial (60 diálogos)",
+        "Exportar en TXT",
+        "Soporte prioritario"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Uso profesional ilimitado",
+      "priceMonthly": "$19.99",
+      "priceAnnual": "$159.99",
+      "features": [
+        "Diálogos ilimitados",
+        "Audios ilimitados",
+        "6 personajes por diálogo",
+        "Traducción ES / EN / IT → italiano",
+        "Historial completo",
+        "Exportar en TXT y PDF",
+        "Studio Avanzado",
+        "Soporte prioritario"
+      ]
+    }
   }
 }

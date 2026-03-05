@@ -1,23 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase";
+import { checkQuota, incrementUsage } from "@/lib/quota";
 
 export const dynamic = "force-dynamic";
 
 interface DialogueLine { name: string; text: string }
 interface Character { id: string; name: string; gender: "M" | "F"; voiceId: string }
-
-async function hasActiveSubscription(userId: string): Promise<boolean> {
-  const db = createServiceClient();
-  const { data } = await db
-    .from("subscriptions")
-    .select("status")
-    .eq("user_id", userId)
-    .in("status", ["active", "trialing"])
-    .limit(1)
-    .single();
-  return !!data;
-}
 
 async function generateSpeech(text: string, voiceId: string): Promise<Uint8Array> {
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
@@ -74,10 +62,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
 
-    const subscribed = await hasActiveSubscription(userId);
-    if (!subscribed) {
+    const quota = await checkQuota(userId, "audio");
+    if (!quota.subscribed) {
       return NextResponse.json(
         { error: "Suscripción requerida para generar audio." },
+        { status: 403 }
+      );
+    }
+    if (!quota.allowed) {
+      return NextResponse.json(
+        { error: `Has alcanzado el límite de audios de tu plan (${quota.used}/${quota.limit}). Actualiza tu plan para continuar.` },
         { status: 403 }
       );
     }
@@ -131,6 +125,7 @@ export async function POST(req: NextRequest) {
     const finalAudio = combineAudio(segments);
     const audioBase64 = Buffer.from(finalAudio).toString("base64");
 
+    await incrementUsage(userId, "audio");
     return NextResponse.json({
       audioContent: audioBase64,
       lines: lines.length,

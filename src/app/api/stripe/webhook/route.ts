@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, productToPlanType } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase";
 import Stripe from "stripe";
 
@@ -47,12 +47,17 @@ export async function POST(req: NextRequest) {
             stripe_customer_id: session.customer as string,
           }, { onConflict: "id" });
 
+          // Detectar plan_type desde el product_id
+          const productId = subscription.items.data[0].price.product;
+          const planType = (typeof productId === "string" ? productToPlanType(productId) : null) ?? "basic";
+
           // Crear registro de suscripción
           await db.from("subscriptions").upsert({
             id: subscription.id,
             user_id: clerkUserId,
             status: subscription.status,
             price_id: subscription.items.data[0].price.id,
+            plan_type: planType,
             current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
             cancel_at_period_end: subscription.cancel_at_period_end,
