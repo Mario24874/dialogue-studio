@@ -1,18 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Download, Plus } from "lucide-react";
+import { Download, Plus, Smartphone } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
-// URL del APK — actualizar con la URL real cuando esté publicado
-// Puede ser un GitHub Release o cualquier CDN
 const APK_URL = process.env.NEXT_PUBLIC_APK_DOWNLOAD_URL || "#";
 
-// Referencia al timestamp de build — cambia en cada deploy,
-// garantizando que este chunk obtenga un nuevo contenthash y Netlify lo suba fresco al CDN.
-const _buildTime = process.env.NEXT_PUBLIC_BUILD_TIME;
-
 type Platform = "android" | "ios" | null;
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
 
 function detectPlatform(): Platform {
   if (typeof navigator === "undefined") return null;
@@ -34,22 +33,28 @@ export default function MobileAppBanner() {
   const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [platform, setPlatform] = useState<Platform>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    // No mostrar si ya está instalada como app (standalone/APK)
     if (isStandaloneMode()) return;
-
     const detected = detectPlatform();
     if (!detected) return;
-
-    // No mostrar si el usuario la cerró antes (sesión actual)
     const dismissed = sessionStorage.getItem("app_banner_dismissed");
     if (dismissed) return;
 
+    // Catch native PWA install prompt (Android Chrome)
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+
     setPlatform(detected);
-    // Pequeño delay para evitar flash en carga
-    const t = setTimeout(() => setVisible(true), 1200);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setVisible(true), 1200);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
   }, []);
 
   const dismiss = () => {
@@ -57,53 +62,63 @@ export default function MobileAppBanner() {
     sessionStorage.setItem("app_banner_dismissed", "1");
   };
 
+  const handleInstall = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === "accepted") dismiss();
+    }
+  };
+
   if (!visible || !platform) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-3 animate-slide-up">
-      <div className="max-w-md mx-auto bg-white border border-italianto-100 rounded-2xl shadow-italianto-lg overflow-hidden">
-        {/* Franja bandera italiana */}
+      <div className="max-w-md mx-auto bg-white dark:bg-slate-800 border border-italianto-100 dark:border-slate-700 rounded-2xl shadow-italianto-lg overflow-hidden">
         <div className="h-1" style={{ background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)" }} />
 
         <div className="flex items-center gap-3 p-4">
-          {/* Logo */}
-          <Image
-            src="/Logo_ItaliAnto.png"
-            alt="Italianto"
-            width={44}
-            height={44}
-            className="rounded-xl flex-shrink-0"
-          />
+          <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={44} height={44} className="rounded-xl flex-shrink-0" />
 
-          {/* Texto */}
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm text-gray-900 truncate">
+            <p className="font-bold text-sm text-gray-900 dark:text-white truncate">
               {platform === "android" ? t("mobile.androidTitle") : t("mobile.iosTitle")}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-gray-500 dark:text-slate-400 truncate">
               {platform === "android" ? t("mobile.androidSubtitle") : t("mobile.iosSubtitle")}
             </p>
           </div>
 
-          {/* Acción */}
+          {/* Acción según plataforma */}
           {platform === "android" ? (
-            <a
-              href={APK_URL}
-              onClick={dismiss}
-              className="flex items-center gap-1.5 px-3 py-2 bg-italianto-800 text-white text-xs font-semibold rounded-lg hover:bg-italianto-900 transition-colors flex-shrink-0"
-              download
-            >
-              <Download size={13} />
-              {t("mobile.downloadApk")}
-            </a>
+            installPrompt ? (
+              // PWA install nativo (Chrome en Android)
+              <button
+                onClick={handleInstall}
+                className="flex items-center gap-1.5 px-3 py-2 bg-italianto-800 text-white text-xs font-semibold rounded-lg hover:bg-italianto-900 transition-colors flex-shrink-0"
+              >
+                <Smartphone size={13} />
+                {t("mobile.installApp")}
+              </button>
+            ) : (
+              // Fallback: descargar APK
+              <a
+                href={APK_URL}
+                onClick={dismiss}
+                className="flex items-center gap-1.5 px-3 py-2 bg-italianto-800 text-white text-xs font-semibold rounded-lg hover:bg-italianto-900 transition-colors flex-shrink-0"
+                download
+              >
+                <Download size={13} />
+                {t("mobile.downloadApk")}
+              </a>
+            )
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-2 bg-italianto-50 text-italianto-800 text-xs font-semibold rounded-lg flex-shrink-0 border border-italianto-200">
+            <div className="flex items-center gap-1.5 px-3 py-2 bg-italianto-50 dark:bg-slate-700 text-italianto-800 dark:text-italianto-300 text-xs font-semibold rounded-lg flex-shrink-0 border border-italianto-200 dark:border-slate-600">
               <Plus size={13} />
-              Share
+              {t("mobile.iosAction")}
             </div>
           )}
 
-          {/* Cerrar */}
           <button
             onClick={dismiss}
             className="text-gray-400 hover:text-gray-600 text-lg leading-none flex-shrink-0 ml-1"

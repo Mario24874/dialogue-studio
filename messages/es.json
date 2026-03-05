@@ -162,7 +162,7 @@
   },
 
   "pricing": {
-    "title": "Planes simples y transparentes",
+    "title": "Planes a la medida",
     "subtitle": "Sin niveles confusos. Acceso completo a tu ritmo.",
     "planMonthly": "Mensual",
     "planAnnual": "Anual",
@@ -221,8 +221,10 @@
     "androidTitle": "Descarga la app para Android",
     "androidSubtitle": "Instala la app nativa en tu dispositivo",
     "downloadApk": "Descargar APK",
+    "installApp": "Instalar",
     "iosTitle": "Agregar a pantalla de inicio",
     "iosSubtitle": "Toca Compartir → Añadir a inicio",
+    "iosAction": "Compartir",
     "close": "×"
   },
 

@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/contexts/language-context";
+import { useTheme } from "@/contexts/theme-context";
 import LanguageSelector from "@/components/ui/language-selector";
 
 const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -24,28 +25,37 @@ const ClerkAuthMobile = dynamic(
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { theme, toggle } = useTheme();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-italianto-100 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-italianto-100 dark:border-slate-700 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 h-[72px] flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={52} height={52} className="rounded-xl" />
-          <span className="font-bold text-italianto-800 text-xl leading-tight">
-            Italianto<br />
-            <span className="text-xs font-medium text-italianto-500 leading-none">Dialogue Studio</span>
+          <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={60} height={60} className="rounded-xl" />
+          <span className="font-bold text-italianto-800 dark:text-italianto-400 text-lg leading-tight">
+            Dialogue Studio
           </span>
         </Link>
 
         {/* Nav desktop */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/#features" className="hover:text-italianto-700 transition-colors">{t("nav.features")}</Link>
-          <Link href="/pricing" className="hover:text-italianto-700 transition-colors">{t("nav.pricing")}</Link>
-          <Link href="/about" className="hover:text-italianto-700 transition-colors">{t("nav.about")}</Link>
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600 dark:text-slate-300">
+          <Link href="/#features" className="hover:text-italianto-700 dark:hover:text-italianto-400 transition-colors">{t("nav.features")}</Link>
+          <Link href="/pricing" className="hover:text-italianto-700 dark:hover:text-italianto-400 transition-colors">{t("nav.pricing")}</Link>
+          <Link href="/about" className="hover:text-italianto-700 dark:hover:text-italianto-400 transition-colors">{t("nav.about")}</Link>
         </nav>
 
-        {/* Auth + Language */}
+        {/* Auth + Language + Theme toggle */}
         <div className="flex items-center gap-2">
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggle}
+            className="p-2 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label={theme === "dark" ? "Modo claro" : "Modo oscuro"}
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
           <LanguageSelector />
 
           {hasClerk ? (
@@ -58,7 +68,7 @@ export default function Header() {
             <>
               <Link
                 href="/sign-in"
-                className="hidden sm:inline-flex text-sm font-medium text-italianto-800 hover:text-italianto-900 transition-colors px-2"
+                className="hidden sm:inline-flex text-sm font-medium text-italianto-800 dark:text-italianto-400 hover:text-italianto-900 transition-colors px-2"
               >
                 {t("nav.signIn")}
               </Link>
@@ -73,21 +83,21 @@ export default function Header() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-1.5 rounded-lg hover:bg-italianto-50 transition-colors"
+            className="md:hidden p-1.5 rounded-lg hover:bg-italianto-50 dark:hover:bg-slate-800 transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
           >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? <X size={20} className="dark:text-slate-300" /> : <Menu size={20} className="dark:text-slate-300" />}
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-italianto-100 bg-white px-4 py-3 flex flex-col gap-3 text-sm font-medium">
-          <Link href="/#features" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.features")}</Link>
-          <Link href="/pricing" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.pricing")}</Link>
-          <Link href="/about" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 hover:text-italianto-700">{t("nav.about")}</Link>
+        <div className="md:hidden border-t border-italianto-100 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 flex flex-col gap-3 text-sm font-medium">
+          <Link href="/#features" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 dark:text-slate-300 hover:text-italianto-700 dark:hover:text-italianto-400">{t("nav.features")}</Link>
+          <Link href="/pricing" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 dark:text-slate-300 hover:text-italianto-700 dark:hover:text-italianto-400">{t("nav.pricing")}</Link>
+          <Link href="/about" onClick={() => setMenuOpen(false)} className="py-2 text-gray-700 dark:text-slate-300 hover:text-italianto-700 dark:hover:text-italianto-400">{t("nav.about")}</Link>
 
           {hasClerk ? (
             <ClerkAuthMobile
@@ -96,7 +106,7 @@ export default function Header() {
               onNavigate={() => setMenuOpen(false)}
             />
           ) : (
-            <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 font-semibold">
+            <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="py-2 text-italianto-800 dark:text-italianto-400 font-semibold">
               {t("nav.signIn")}
             </Link>
           )}

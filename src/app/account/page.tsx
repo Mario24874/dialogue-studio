@@ -23,7 +23,7 @@ function ProgressBar({ used, limit }: { used: number; limit: number }) {
   const pct = Math.min(Math.round((used / limit) * 100), 100);
   const color = pct >= 90 ? "bg-red-500" : pct >= 70 ? "bg-yellow-500" : "bg-italianto-600";
   return (
-    <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1.5">
+    <div className="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-1.5 mt-1.5">
       <div className={`${color} h-1.5 rounded-full transition-all`} style={{ width: `${pct}%` }} />
     </div>
   );
@@ -77,9 +77,9 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 bg-gray-50 py-12">
+      <main className="flex-1 bg-gray-50 dark:bg-slate-900 py-12">
         <div className="max-w-lg mx-auto px-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">{t("account.title")}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t("account.title")}</h1>
 
           {loading ? (
             <div className="flex justify-center py-20">
@@ -87,9 +87,9 @@ export default function AccountPage() {
             </div>
           ) : !sub?.active ? (
             /* Sin suscripción */
-            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-8 text-center">
               <Sparkles size={36} className="text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-6">{t("account.noSub")}</p>
+              <p className="text-gray-600 dark:text-slate-400 mb-6">{t("account.noSub")}</p>
               <Link
                 href="/pricing"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-italianto-800 text-white font-semibold rounded-xl hover:bg-italianto-900 transition-colors"
@@ -101,10 +101,10 @@ export default function AccountPage() {
           ) : (
             <div className="space-y-4">
               {/* Plan activo */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-6">
                 <div className="flex items-center gap-2 mb-1">
                   <CreditCard size={16} className="text-gray-400" />
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">
                     {t("account.plan")}
                   </span>
                 </div>
@@ -124,10 +124,10 @@ export default function AccountPage() {
                 const dUnlimited = limits.dialogues === -1;
                 const aUnlimited = limits.audio === -1;
                 return (
-                  <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <BarChart2 size={16} className="text-gray-400" />
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <span className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">
                         {t("account.usage")}
                       </span>
                     </div>
@@ -135,8 +135,8 @@ export default function AccountPage() {
                       {/* Diálogos */}
                       <div>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-700">{t("account.dialogues")}</span>
-                          <span className="font-semibold text-gray-900">
+                          <span className="text-gray-700 dark:text-slate-300">{t("account.dialogues")}</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">
                             {dUnlimited
                               ? `${sub.dialogues_used} / ${t("account.unlimited")}`
                               : `${sub.dialogues_used} / ${limits.dialogues}`}
@@ -147,8 +147,8 @@ export default function AccountPage() {
                       {/* Audio */}
                       <div>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-700">{t("account.audio")}</span>
-                          <span className="font-semibold text-gray-900">
+                          <span className="text-gray-700 dark:text-slate-300">{t("account.audio")}</span>
+                          <span className="font-semibold text-gray-900 dark:text-white">
                             {aUnlimited
                               ? `${sub.audio_used} / ${t("account.unlimited")}`
                               : `${sub.audio_used} / ${limits.audio}`}
@@ -169,7 +169,7 @@ export default function AccountPage() {
               })()}
 
               {/* Gestionar suscripción */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-6">
                 <button
                   onClick={openPortal}
                   disabled={portalLoading}
@@ -185,7 +185,7 @@ export default function AccountPage() {
                 {portalError && (
                   <p className="text-xs text-red-500 mt-2 text-center">{portalError}</p>
                 )}
-                <p className="text-xs text-gray-400 mt-3 text-center leading-relaxed">
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-3 text-center leading-relaxed">
                   {t("account.cancelNote")}
                 </p>
               </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { LanguageProvider } from "@/contexts/language-context";
+import { ThemeProvider } from "@/contexts/theme-context";
 import MobileAppBanner from "@/components/layout/mobile-app-banner";
 
 export const metadata: Metadata = {
@@ -35,12 +36,16 @@ export default function RootLayout({
         <meta name="theme-color" content="#2e7d32" />
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/Logo_ItaliAnto.png" />
+        {/* Prevent dark mode flash on reload */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');})();` }} />
       </head>
       <body data-v="3">
-        <LanguageProvider>
-          {children}
-          <MobileAppBanner />
-        </LanguageProvider>
+        <ThemeProvider>
+          <LanguageProvider>
+            {children}
+            <MobileAppBanner />
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

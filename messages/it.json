@@ -164,7 +164,7 @@
   },
 
   "pricing": {
-    "title": "Piani semplici e trasparenti",
+    "title": "Piani su misura",
     "subtitle": "Senza livelli confusi. Accesso completo al tuo ritmo.",
     "planMonthly": "Mensile",
     "planAnnual": "Annuale",
@@ -223,8 +223,10 @@
     "androidTitle": "Scarica l'app per Android",
     "androidSubtitle": "Installa l'app nativa sul tuo dispositivo",
     "downloadApk": "Scarica APK",
+    "installApp": "Installa",
     "iosTitle": "Aggiungi alla schermata Home",
     "iosSubtitle": "Tocca Condividi → Aggiungi a Home",
+    "iosAction": "Condividi",
     "close": "×"
   },
 

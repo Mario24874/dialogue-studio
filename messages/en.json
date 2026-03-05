@@ -164,7 +164,7 @@
   },
 
   "pricing": {
-    "title": "Simple and transparent plans",
+    "title": "Plans tailored for you",
     "subtitle": "No confusing tiers. Full access at your own pace.",
     "planMonthly": "Monthly",
     "planAnnual": "Annual",
@@ -223,8 +223,10 @@
     "androidTitle": "Download the Android app",
     "androidSubtitle": "Install the native app on your device",
     "downloadApk": "Download APK",
+    "installApp": "Install",
     "iosTitle": "Add to Home Screen",
     "iosSubtitle": "Tap Share → Add to Home Screen",
+    "iosAction": "Share",
     "close": "×"
   },
 

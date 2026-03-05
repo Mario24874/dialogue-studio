@@ -18,21 +18,21 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-gray-50 dark:bg-slate-900">
         <div className="max-w-5xl mx-auto px-4 py-16">
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{t("pricing.title")}</h1>
-            <p className="text-gray-500 text-lg">{t("pricing.subtitle")}</p>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t("pricing.title")}</h1>
+            <p className="text-gray-500 dark:text-slate-400 text-lg">{t("pricing.subtitle")}</p>
           </div>
 
           {/* Toggle mensual / anual */}
-          <div className="flex bg-white border border-gray-200 rounded-xl p-1 mb-10 max-w-xs mx-auto shadow-sm">
+          <div className="flex bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-1 mb-10 max-w-xs mx-auto shadow-sm">
             <button
               onClick={() => setBilling("monthly")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                 billing === "monthly"
                   ? "bg-italianto-800 text-white shadow"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
               }`}
             >
               {t("plans.toggleMonthly")}
@@ -42,7 +42,7 @@ export default function PricingPage() {
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 billing === "annual"
                   ? "bg-italianto-800 text-white shadow"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
               }`}
             >
               {t("plans.toggleAnnual")}
@@ -70,7 +70,7 @@ export default function PricingPage() {
                   className={`rounded-2xl overflow-hidden flex flex-col ${
                     isPopular
                       ? "bg-italianto-800 text-white shadow-2xl ring-2 ring-italianto-600"
-                      : "bg-white border border-gray-200 shadow-md"
+                      : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-md"
                   }`}
                 >
                   <div className="h-1.5" style={{ background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)" }} />
@@ -140,12 +140,12 @@ export default function PricingPage() {
           </div>
 
           {/* FAQ */}
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-6">{t("pricing.faqTitle")}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-6">{t("pricing.faqTitle")}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-slate-400">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="p-4 bg-white rounded-xl border border-gray-100 text-left">
-                <p className="font-semibold text-gray-900 mb-1">{t(`pricing.faq.${i}.q`)}</p>
-                <p className="text-xs text-gray-500">{t(`pricing.faq.${i}.a`)}</p>
+              <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-left">
+                <p className="font-semibold text-gray-900 dark:text-white mb-1">{t(`pricing.faq.${i}.q`)}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{t(`pricing.faq.${i}.a`)}</p>
               </div>
             ))}
           </div>

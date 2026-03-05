@@ -28,6 +28,42 @@ const INITIAL_CHARACTERS: Character[] = [
   { id: "b", name: "Persona B", gender: "F", voiceId: ELEVENLABS_VOICES.F[0].id },
 ];
 
+function playSound(type: "success" | "error") {
+  try {
+    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    if (type === "success") {
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+        gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.12 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.5);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.5);
+      });
+    } else {
+      [330, 220].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sawtooth";
+        gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.22);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.3);
+        osc.start(ctx.currentTime + i * 0.22);
+        osc.stop(ctx.currentTime + i * 0.22 + 0.3);
+      });
+    }
+  } catch {
+    // AudioContext not available (SSR, older browsers) — fail silently
+  }
+}
+
 export default function StudioPage() {
   const { t, tArray } = useLanguage();
 
@@ -98,6 +134,7 @@ export default function StudioPage() {
           .join("\n");
         setWrittenResult(formatted);
         setProgress(100);
+        playSound("success");
         setStep(4);
       } else {
         setProgress(50);
@@ -113,9 +150,11 @@ export default function StudioPage() {
 
         setAudioSrc(`data:audio/mp3;base64,${audioData.audioContent}`);
         setProgress(100);
+        playSound("success");
         setStep(4);
       }
     } catch (err: unknown) {
+      playSound("error");
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setLoading(false);
@@ -145,13 +184,13 @@ export default function StudioPage() {
   const stepTitles = tArray("studio.stepTitles");
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col">
       {/* Topbar del Studio */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
-            <span className="font-bold text-italianto-800 text-sm">Dialogue Studio</span>
+            <span className="font-bold text-italianto-800 dark:text-italianto-400 text-sm">Dialogue Studio</span>
           </Link>
           <div className="flex items-center gap-3">
             {quota && (() => {
@@ -161,7 +200,7 @@ export default function StudioPage() {
               return (
                 <Link
                   href="/account"
-                  className="hidden sm:flex items-center gap-2 text-xs text-gray-500 hover:text-italianto-700 transition-colors bg-gray-50 hover:bg-italianto-50 border border-gray-200 rounded-lg px-3 py-1.5"
+                  className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400 hover:text-italianto-700 dark:hover:text-italianto-400 transition-colors bg-gray-50 dark:bg-slate-800 hover:bg-italianto-50 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-1.5"
                 >
                   <FileText size={12} />
                   <span>{dLabel}</span>
@@ -185,12 +224,12 @@ export default function StudioPage() {
                 step === s
                   ? "bg-italianto-800 text-white shadow-italianto"
                   : step > s
-                    ? "bg-italianto-100 text-italianto-800"
-                    : "bg-gray-100 text-gray-400"
+                    ? "bg-italianto-100 dark:bg-italianto-900 text-italianto-800 dark:text-italianto-300"
+                    : "bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500"
               }`}>
                 {step > s ? <Check size={16} /> : s}
               </div>
-              <span className={`hidden sm:block ml-2 text-xs font-medium ${step >= s ? "text-italianto-800" : "text-gray-400"}`}>
+              <span className={`hidden sm:block ml-2 text-xs font-medium ${step >= s ? "text-italianto-800 dark:text-italianto-400" : "text-gray-400 dark:text-slate-500"}`}>
                 {stepTitles[s - 1]}
               </span>
               {s < 4 && (
@@ -201,15 +240,15 @@ export default function StudioPage() {
         </div>
 
         {/* Contenido del paso actual */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
           {/* PASO 1: Ingreso de diálogo */}
           {step === 1 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">{t("studio.step1.title")}</h2>
-              <p className="text-gray-500 text-sm mb-5">{t("studio.step1.subtitle")}</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step1.title")}</h2>
+              <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step1.subtitle")}</p>
 
               <div className="mb-4">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">{t("studio.step1.langLabel")}</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">{t("studio.step1.langLabel")}</label>
                 <div className="flex gap-3">
                   {(["es", "en"] as SourceLang[]).map((lang) => (
                     <button
@@ -218,7 +257,7 @@ export default function StudioPage() {
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
                         sourceLang === lang
                           ? "bg-italianto-800 text-white border-italianto-800"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-italianto-300"
+                          : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
                       }`}
                     >
                       {lang === "es" ? t("studio.step1.langEs") : t("studio.step1.langEn")}
@@ -231,7 +270,7 @@ export default function StudioPage() {
               {quota?.plan_type === "pro" && (
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <label className="text-sm font-medium text-gray-700">{t("studio.step1.dialogueTypeLabel")}</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300">{t("studio.step1.dialogueTypeLabel")}</label>
                     <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2 py-0.5 rounded-full">Pro</span>
                   </div>
                   <div className="flex gap-2 flex-wrap">
@@ -240,7 +279,7 @@ export default function StudioPage() {
                       className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
                         dialogueType === undefined
                           ? "bg-italianto-800 text-white border-italianto-800"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-italianto-300"
+                          : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
                       }`}
                     >
                       {t("studio.step1.dialogueTypeStandard")}
@@ -266,10 +305,10 @@ export default function StudioPage() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={10}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent resize-none transition-all font-mono"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent resize-none transition-all font-mono"
                 placeholder={t("studio.step1.placeholder")}
               />
-              <p className="text-xs text-gray-400 mt-2 text-right">
+              <p className="text-xs text-gray-400 dark:text-slate-500 mt-2 text-right">
                 {t("studio.step1.chars", { n: String(inputText.length) })}
                 {inputText.length < 20 && inputText.length > 0 && ` ${t("studio.step1.minChars")}`}
               </p>
@@ -279,8 +318,8 @@ export default function StudioPage() {
           {/* PASO 2: Configurar personajes */}
           {step === 2 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">{t("studio.step2.title")}</h2>
-              <p className="text-gray-500 text-sm mb-5">{t("studio.step2.subtitle")}</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step2.title")}</h2>
+              <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step2.subtitle")}</p>
               <CharacterBuilder characters={characters} onChange={setCharacters} />
             </div>
           )}
@@ -288,8 +327,8 @@ export default function StudioPage() {
           {/* PASO 3: Elegir formato */}
           {step === 3 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">{t("studio.step3.title")}</h2>
-              <p className="text-gray-500 text-sm mb-6">{t("studio.step3.subtitle")}</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step3.title")}</h2>
+              <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">{t("studio.step3.subtitle")}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Opción: Escrito */}
@@ -297,18 +336,18 @@ export default function StudioPage() {
                   onClick={() => setOutputType("written")}
                   className={`p-6 rounded-xl border-2 text-left transition-all duration-200 ${
                     outputType === "written"
-                      ? "border-italianto-700 bg-italianto-50 shadow-italianto"
-                      : "border-gray-200 hover:border-italianto-300 bg-white"
+                      ? "border-italianto-700 bg-italianto-50 dark:bg-italianto-900/20 shadow-italianto"
+                      : "border-gray-200 dark:border-slate-600 hover:border-italianto-300 bg-white dark:bg-slate-700"
                   }`}
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                    outputType === "written" ? "bg-italianto-800" : "bg-gray-100"
+                    outputType === "written" ? "bg-italianto-800" : "bg-gray-100 dark:bg-slate-600"
                   }`}>
-                    <FileText className={`w-6 h-6 ${outputType === "written" ? "text-white" : "text-gray-500"}`} />
+                    <FileText className={`w-6 h-6 ${outputType === "written" ? "text-white" : "text-gray-500 dark:text-slate-300"}`} />
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-1">{t("studio.step3.writtenTitle")}</h3>
-                  <p className="text-sm text-gray-500">{t("studio.step3.writtenDesc")}</p>
-                  <div className="mt-3 text-xs text-gray-400 font-mono bg-gray-50 rounded-lg p-2">
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-1">{t("studio.step3.writtenTitle")}</h3>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">{t("studio.step3.writtenDesc")}</p>
+                  <div className="mt-3 text-xs text-gray-400 dark:text-slate-500 font-mono bg-gray-50 dark:bg-slate-800 rounded-lg p-2">
                     Marco. Ciao Sofia!{"\n"}Sofia. Ciao Marco!
                   </div>
                 </button>
@@ -318,18 +357,18 @@ export default function StudioPage() {
                   onClick={() => setOutputType("audio")}
                   className={`p-6 rounded-xl border-2 text-left transition-all duration-200 ${
                     outputType === "audio"
-                      ? "border-italianto-700 bg-italianto-50 shadow-italianto"
-                      : "border-gray-200 hover:border-italianto-300 bg-white"
+                      ? "border-italianto-700 bg-italianto-50 dark:bg-italianto-900/20 shadow-italianto"
+                      : "border-gray-200 dark:border-slate-600 hover:border-italianto-300 bg-white dark:bg-slate-700"
                   }`}
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                    outputType === "audio" ? "bg-italianto-800" : "bg-gray-100"
+                    outputType === "audio" ? "bg-italianto-800" : "bg-gray-100 dark:bg-slate-600"
                   }`}>
-                    <Mic className={`w-6 h-6 ${outputType === "audio" ? "text-white" : "text-gray-500"}`} />
+                    <Mic className={`w-6 h-6 ${outputType === "audio" ? "text-white" : "text-gray-500 dark:text-slate-300"}`} />
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-1">{t("studio.step3.audioTitle")}</h3>
-                  <p className="text-sm text-gray-500">{t("studio.step3.audioDesc")}</p>
-                  <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-1">{t("studio.step3.audioTitle")}</h3>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">{t("studio.step3.audioDesc")}</p>
+                  <div className="mt-3 flex items-center gap-2 text-xs text-gray-400 dark:text-slate-500">
                     <Volume2 size={14} />
                     <span>{t("studio.step3.voicesLabel")}</span>
                   </div>
@@ -337,8 +376,8 @@ export default function StudioPage() {
               </div>
 
               {/* Resumen de configuración */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t("studio.step3.summary")}</p>
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600">
+                <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">{t("studio.step3.summary")}</p>
                 <div className="flex flex-wrap gap-2">
                   {characters.map((c, i) => (
                     <span key={c.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-italianto-100 rounded-full text-xs font-medium text-italianto-800">
@@ -358,12 +397,12 @@ export default function StudioPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{t("studio.step4.title")}</h2>
-                  <p className="text-gray-500 text-sm">{t("studio.step4.subtitle")}</p>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("studio.step4.title")}</h2>
+                  <p className="text-gray-500 dark:text-slate-400 text-sm">{t("studio.step4.subtitle")}</p>
                 </div>
                 <button
                   onClick={resetStudio}
-                  className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-italianto-700 transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-slate-400 hover:text-italianto-700 dark:hover:text-italianto-400 transition-colors"
                 >
                   <RotateCcw size={15} />
                   {t("studio.step4.newDialogue")}
@@ -373,7 +412,7 @@ export default function StudioPage() {
               {/* Resultado escrito */}
               {writtenResult && (
                 <div>
-                  <div className="relative bg-italianto-50 border border-italianto-100 rounded-xl p-5 font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-800">
+                  <div className="relative bg-italianto-50 dark:bg-slate-700 border border-italianto-100 dark:border-slate-600 rounded-xl p-5 font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-slate-200">
                     {writtenResult}
                     <button
                       onClick={copyToClipboard}
@@ -392,8 +431,8 @@ export default function StudioPage() {
               {/* Resultado audio */}
               {audioSrc && (
                 <div className="space-y-4">
-                  <div className="bg-italianto-50 border border-italianto-100 rounded-xl p-4">
-                    <p className="text-sm font-medium text-italianto-800 mb-3 flex items-center gap-2">
+                  <div className="bg-italianto-50 dark:bg-slate-700 border border-italianto-100 dark:border-slate-600 rounded-xl p-4">
+                    <p className="text-sm font-medium text-italianto-800 dark:text-italianto-300 mb-3 flex items-center gap-2">
                       <Volume2 size={16} />
                       {t("studio.step4.audioTitle")}
                     </p>
@@ -415,11 +454,11 @@ export default function StudioPage() {
 
           {/* Navegación */}
           {step < 4 && (
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+            <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-t border-gray-100 dark:border-slate-600 flex items-center justify-between">
               <button
                 onClick={() => setStep((prev) => Math.max(1, prev - 1) as Step)}
                 disabled={step === 1}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 {t("studio.nav.prev")}
               </button>
@@ -456,7 +495,7 @@ export default function StudioPage() {
 
           {/* Barra de progreso */}
           {loading && (
-            <div className="h-1.5 bg-gray-100">
+            <div className="h-1.5 bg-gray-100 dark:bg-slate-700">
               <div
                 className="h-full bg-italianto-600 transition-all duration-500 rounded-full"
                 style={{ width: `${progress}%` }}

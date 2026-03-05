@@ -94,12 +94,12 @@ export default function LandingPage() {
         </section>
 
         {/* EJEMPLO DE DIÁLOGO */}
-        <section className="bg-italianto-50 py-12 border-y border-italianto-100">
+        <section className="bg-italianto-50 dark:bg-slate-800 py-12 border-y border-italianto-100 dark:border-slate-700">
           <div className="max-w-3xl mx-auto px-4 text-center">
             <p className="text-sm font-semibold text-italianto-600 uppercase tracking-wider mb-4">
               {t("landing.example.label")}
             </p>
-            <div className="bg-white rounded-2xl shadow-italianto border border-italianto-100 p-6 text-left">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-italianto border border-italianto-100 dark:border-slate-700 p-6 text-left">
               <pre className="text-gray-700 font-mono text-sm leading-relaxed whitespace-pre-wrap">
                 {exampleDialogue}
               </pre>
@@ -111,14 +111,14 @@ export default function LandingPage() {
         </section>
 
         {/* FEATURES */}
-        <section id="features" className="py-20 bg-white">
+        <section id="features" className="py-20 bg-white dark:bg-slate-900">
           <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 {t("landing.features.title1")}{" "}
-                <span className="text-italianto-700">{t("landing.features.titleHighlight")}</span>
+                <span className="text-italianto-700 dark:text-italianto-400">{t("landing.features.titleHighlight")}</span>
               </h2>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              <p className="text-gray-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
                 {t("landing.features.subtitle")}
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function LandingPage() {
                 return (
                   <div
                     key={key}
-                    className="p-6 rounded-2xl border border-gray-100 hover:border-italianto-200 hover:shadow-italianto transition-all duration-300 group"
+                    className="p-6 rounded-2xl border border-gray-100 dark:border-slate-700 dark:bg-slate-800 hover:border-italianto-200 hover:shadow-italianto transition-all duration-300 group"
                   >
                     <div className="w-12 h-12 bg-italianto-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-italianto-100 transition-colors">
                       <Icon className="w-6 h-6 text-italianto-700" />
@@ -144,22 +144,22 @@ export default function LandingPage() {
         </section>
 
         {/* CÓMO FUNCIONA */}
-        <section className="py-20 bg-italianto-50">
+        <section className="py-20 bg-italianto-50 dark:bg-slate-800">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 {t("landing.howItWorks.title")}
               </h2>
-              <p className="text-gray-600 text-lg">{t("landing.howItWorks.subtitle")}</p>
+              <p className="text-gray-600 dark:text-slate-400 text-lg">{t("landing.howItWorks.subtitle")}</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {steps.map(({ n, title, desc }) => (
                 <div key={n} className="relative">
-                  <div className="bg-white rounded-2xl p-6 border border-italianto-100 shadow-sm h-full">
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-italianto-100 dark:border-slate-700 shadow-sm h-full">
                     <div className="text-4xl font-black text-italianto-100 mb-3">{n}</div>
-                    <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
-                    <p className="text-gray-600 text-sm">{desc}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+                    <p className="text-gray-600 dark:text-slate-400 text-sm">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -168,21 +168,21 @@ export default function LandingPage() {
         </section>
 
         {/* PRICING — 3 PLANES */}
-        <section id="pricing" className="py-20 bg-white">
+        <section id="pricing" className="py-20 bg-white dark:bg-slate-900">
           <div className="max-w-5xl mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {t("landing.pricing.title")}
             </h2>
-            <p className="text-gray-600 mb-8">{t("landing.pricing.subtitle")}</p>
+            <p className="text-gray-600 dark:text-slate-400 mb-8">{t("landing.pricing.subtitle")}</p>
 
             {/* Toggle mensual / anual */}
-            <div className="inline-flex items-center bg-gray-100 rounded-xl p-1 mb-10">
+            <div className="inline-flex items-center bg-gray-100 dark:bg-slate-700 rounded-xl p-1 mb-10">
               <button
                 onClick={() => setBilling("monthly")}
                 className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                   billing === "monthly"
-                    ? "bg-white shadow text-gray-900"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white dark:bg-slate-900 shadow text-gray-900 dark:text-white"
+                    : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 }`}
               >
                 {t("plans.toggleMonthly")}
@@ -191,8 +191,8 @@ export default function LandingPage() {
                 onClick={() => setBilling("annual")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
                   billing === "annual"
-                    ? "bg-white shadow text-gray-900"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white dark:bg-slate-900 shadow text-gray-900 dark:text-white"
+                    : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                 }`}
               >
                 {t("plans.toggleAnnual")}
@@ -209,8 +209,8 @@ export default function LandingPage() {
                   key={key}
                   className={`relative rounded-2xl border p-6 text-left flex flex-col ${
                     popular
-                      ? "border-italianto-500 shadow-italianto-lg ring-2 ring-italianto-300"
-                      : "border-gray-200 shadow-sm"
+                      ? "border-italianto-500 shadow-italianto-lg ring-2 ring-italianto-300 dark:ring-italianto-700"
+                      : "border-gray-200 dark:border-slate-700 shadow-sm dark:bg-slate-800"
                   }`}
                 >
                   {popular && (
@@ -218,28 +218,28 @@ export default function LandingPage() {
                       {t("plans.popular")}
                     </span>
                   )}
-                  <h3 className="font-bold text-gray-900 text-lg mb-1">
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
                     {t(`plans.${key}.name`)}
                   </h3>
-                  <p className="text-gray-500 text-sm mb-4">
+                  <p className="text-gray-500 dark:text-slate-400 text-sm mb-4">
                     {t(`plans.${key}.description`)}
                   </p>
                   <div className="mb-1">
-                    <span className="text-4xl font-black text-gray-900">
+                    <span className="text-4xl font-black text-gray-900 dark:text-white">
                       {billing === "monthly"
                         ? t(`plans.${key}.priceMonthly`)
                         : t(`plans.${key}.priceAnnual`)}
                     </span>
-                    <span className="text-gray-500 text-sm ml-1">
+                    <span className="text-gray-500 dark:text-slate-400 text-sm ml-1">
                       {billing === "monthly" ? t("plans.perMonth") : t("plans.perYear")}
                     </span>
                   </div>
                   {billing === "annual" && (
-                    <p className="text-xs text-gray-400 mb-3">{t("plans.annualNote")}</p>
+                    <p className="text-xs text-gray-400 dark:text-slate-500 mb-3">{t("plans.annualNote")}</p>
                   )}
                   <ul className="space-y-2 my-4 flex-1">
                     {(tArray(`plans.${key}.features`) as string[]).map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                      <li key={f} className="flex items-start gap-2 text-sm text-gray-600 dark:text-slate-400">
                         <Check className="w-4 h-4 text-italianto-600 flex-shrink-0 mt-0.5" />
                         {f}
                       </li>
