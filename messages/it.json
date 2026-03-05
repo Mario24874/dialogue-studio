@@ -79,7 +79,12 @@
       "langEn": "🇺🇸 Inglese",
       "placeholder": "Esempio:\nA: Ciao, come stai?\nB: Bene grazie, e tu?\nA: Molto bene. Prendiamo un caffè?\nB: Certo, volentieri!",
       "chars": "{n} caratteri",
-      "minChars": "(minimo 20)"
+      "minChars": "(minimo 20)",
+      "dialogueTypeLabel": "Tipo di dialogo",
+      "dialogueTypeStandard": "Standard",
+      "dialogueType_formal": "Formale",
+      "dialogueType_informal": "Informale",
+      "dialogueType_technical": "Tecnico"
     },
     "step2": {
       "title": "Configura i personaggi",

@@ -79,7 +79,12 @@
       "langEn": "🇺🇸 English",
       "placeholder": "Example:\nA: Hi, how are you?\nB: Fine thanks, and you?\nA: Great. Shall we grab a coffee?\nB: Sure, let's go!",
       "chars": "{n} characters",
-      "minChars": "(minimum 20)"
+      "minChars": "(minimum 20)",
+      "dialogueTypeLabel": "Dialogue type",
+      "dialogueTypeStandard": "Standard",
+      "dialogueType_formal": "Formal",
+      "dialogueType_informal": "Informal",
+      "dialogueType_technical": "Technical"
     },
     "step2": {
       "title": "Set up characters",

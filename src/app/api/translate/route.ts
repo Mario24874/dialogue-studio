@@ -1,22 +1,36 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { checkQuota, incrementUsage } from "@/lib/quota";
+import { type DialogueType, DIALOGUE_EXAMPLES, DIALOGUE_TYPE_STYLE_NOTES } from "@/lib/dialogue-examples";
 
 export const dynamic = "force-dynamic";
 
 interface Character { id: string; name: string; gender: "M" | "F" }
 
 // Prompt compartido por ambos proveedores
-function buildPrompt(text: string, sourceLang: string, characters: Character[]): string {
+function buildPrompt(
+  text: string,
+  sourceLang: string,
+  characters: Character[],
+  dialogueType?: DialogueType
+): string {
   const langName = sourceLang === "es" ? "español" : "inglés";
   const charList = characters
     .map((c, i) => `${String.fromCharCode(65 + i)}: ${c.name}`)
     .join(", ");
 
+  const styleBlock = dialogueType ? `
+ESTILO DEL DIÁLOGO: ${dialogueType.toUpperCase()}
+${DIALOGUE_TYPE_STYLE_NOTES[dialogueType]}
+
+EJEMPLO DE REFERENCIA (sigue este estilo):
+${DIALOGUE_EXAMPLES[dialogueType]}
+` : "";
+
   return `Eres un experto en traducción al italiano natural y coloquial.
 
 El siguiente diálogo está en ${langName}. Tradúcelo al italiano natural, manteniendo el tono conversacional.
-
+${styleBlock}
 PERSONAJES (usa estos nombres exactamente en el resultado):
 ${charList}
 
@@ -24,7 +38,7 @@ DIÁLOGO ORIGINAL:
 ${text}
 
 INSTRUCCIONES IMPORTANTES:
-1. Traduce cada línea al italiano natural y coloquial.
+1. Traduce cada línea al italiano${dialogueType ? ` usando el estilo ${dialogueType}` : " natural y coloquial"}.
 2. Identifica qué personaje (A, B, C...) habla en cada línea del original.
 3. Usa el nombre real del personaje (no la letra) en la respuesta.
 4. Devuelve ÚNICAMENTE un JSON válido con este formato, sin texto adicional:
@@ -54,11 +68,12 @@ function parseTranslationJson(raw: string) {
 async function translateWithGemini(
   text: string,
   sourceLang: string,
-  characters: Character[]
+  characters: Character[],
+  dialogueType?: DialogueType
 ) {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const prompt = buildPrompt(text, sourceLang, characters);
+  const prompt = buildPrompt(text, sourceLang, characters, dialogueType);
 
   const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-3-flash-preview"];
   let lastError: unknown;
@@ -81,12 +96,13 @@ async function translateWithGemini(
 async function translateWithClaude(
   text: string,
   sourceLang: string,
-  characters: Character[]
+  characters: Character[],
+  dialogueType?: DialogueType
 ) {
   const Anthropic = (await import("@anthropic-ai/sdk")).default;
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const prompt = buildPrompt(text, sourceLang, characters);
+  const prompt = buildPrompt(text, sourceLang, characters, dialogueType);
   const message = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 2048,
@@ -146,10 +162,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { text, sourceLang, characters }: {
+    const { text, sourceLang, characters, dialogueType }: {
       text: string;
       sourceLang: "es" | "en";
       characters: Character[];
+      dialogueType?: DialogueType;
     } = await req.json();
 
     if (!text?.trim()) {
@@ -163,9 +180,9 @@ export async function POST(req: NextRequest) {
     if (process.env.TRANSLATION_MODE === "mock") {
       result = buildMockResponse(characters, text);
     } else if (process.env.ANTHROPIC_API_KEY) {
-      result = await translateWithClaude(text, sourceLang, characters);
+      result = await translateWithClaude(text, sourceLang, characters, dialogueType);
     } else if (process.env.GEMINI_API_KEY) {
-      result = await translateWithGemini(text, sourceLang, characters);
+      result = await translateWithGemini(text, sourceLang, characters, dialogueType);
     } else {
       return NextResponse.json(
         { error: "No hay proveedor de traducción configurado (GEMINI_API_KEY o ANTHROPIC_API_KEY)." },

@@ -11,6 +11,7 @@ import {
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
 import { useLanguage } from "@/contexts/language-context";
 import { getPlanLimits, type PlanType } from "@/lib/quota";
+import { DIALOGUE_TYPE_KEYS, type DialogueType } from "@/lib/dialogue-examples";
 
 // User info (useUser + UserButton) loaded client-side only — Clerk hooks cannot
 // run during build-time static prerendering (no request context, no middleware).
@@ -45,6 +46,7 @@ export default function StudioPage() {
 
   // Estado del flujo
   const [step, setStep] = useState<Step>(1);
+  const [dialogueType, setDialogueType] = useState<DialogueType | undefined>(undefined);
   const [inputText, setInputText] = useState("");
   const [sourceLang, setSourceLang] = useState<SourceLang>("es");
   const [characters, setCharacters] = useState<Character[]>(INITIAL_CHARACTERS);
@@ -63,6 +65,7 @@ export default function StudioPage() {
     setInputText("");
     setCharacters(INITIAL_CHARACTERS);
     setOutputType("written");
+    setDialogueType(undefined);
     setWrittenResult("");
     setAudioSrc("");
     setError("");
@@ -80,7 +83,7 @@ export default function StudioPage() {
       const translateRes = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputText, sourceLang, characters }),
+        body: JSON.stringify({ text: inputText, sourceLang, characters, dialogueType }),
       });
       setProgress(40);
 
@@ -223,6 +226,41 @@ export default function StudioPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Selector tipo de diálogo — solo Pro */}
+              {quota?.plan_type === "pro" && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <label className="text-sm font-medium text-gray-700">{t("studio.step1.dialogueTypeLabel")}</label>
+                    <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2 py-0.5 rounded-full">Pro</span>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => setDialogueType(undefined)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
+                        dialogueType === undefined
+                          ? "bg-italianto-800 text-white border-italianto-800"
+                          : "bg-white text-gray-600 border-gray-200 hover:border-italianto-300"
+                      }`}
+                    >
+                      {t("studio.step1.dialogueTypeStandard")}
+                    </button>
+                    {DIALOGUE_TYPE_KEYS.map((dt) => (
+                      <button
+                        key={dt}
+                        onClick={() => setDialogueType(dt)}
+                        className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
+                          dialogueType === dt
+                            ? "bg-italianto-800 text-white border-italianto-800"
+                            : "bg-white text-gray-600 border-gray-200 hover:border-italianto-300"
+                        }`}
+                      >
+                        {t(`studio.step1.dialogueType_${dt}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <textarea
                 value={inputText}

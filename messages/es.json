@@ -79,7 +79,12 @@
       "langEn": "🇺🇸 English",
       "placeholder": "Ejemplo:\nA: Hola, ¿cómo estás?\nB: Bien gracias, ¿y tú?\nA: Muy bien. ¿Tomamos un café?\nB: ¡Claro que sí!",
       "chars": "{n} caracteres",
-      "minChars": "(mínimo 20)"
+      "minChars": "(mínimo 20)",
+      "dialogueTypeLabel": "Tipo de diálogo",
+      "dialogueTypeStandard": "Estándar",
+      "dialogueType_formal": "Formal",
+      "dialogueType_informal": "Informal",
+      "dialogueType_technical": "Técnico"
     },
     "step2": {
       "title": "Configura los personajes",
