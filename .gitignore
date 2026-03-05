@@ -50,3 +50,7 @@ next-env.d.ts
 
 # Italianto App (proyecto separado, no incluir en este repo)
 /ItaliantoApp
+
+# Documentación local (no subir, se mantiene fuera del repo)
+PROJECT_CONTEXT.md
+CLAUDE.md
