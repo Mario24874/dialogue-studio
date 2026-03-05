@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
       body.billing === "annual" || body.plan === "annual" ? "annual" : "monthly";
 
     const priceMap: Record<string, Record<string, string | undefined>> = {
-      basic:    { monthly: process.env.STRIPE_PRICE_ID_BASIC,            annual: process.env.STRIPE_PRICE_ID_BASIC_ANNUAL },
+      basic:    { monthly: process.env.STRIPE_PRICE_ID_BASIC    || process.env.STRIPE_PRICE_ID_MONTHLY,
+                  annual:  process.env.STRIPE_PRICE_ID_BASIC_ANNUAL || process.env.STRIPE_PRICE_ID_ANNUAL },
       standard: { monthly: process.env.STRIPE_PRICE_ID_STANDARD_MONTHLY, annual: process.env.STRIPE_PRICE_ID_STANDARD_ANNUAL },
       pro:      { monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY,       annual: process.env.STRIPE_PRICE_ID_PRO_ANNUAL },
     };

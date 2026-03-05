@@ -25,8 +25,8 @@ export function productToPlanType(productId: string): "basic" | "standard" | "pr
 // Todos los price IDs válidos (evaluado en runtime)
 export function getValidPriceIds(): string[] {
   return [
-    process.env.STRIPE_PRICE_ID_BASIC,
-    process.env.STRIPE_PRICE_ID_BASIC_ANNUAL,
+    process.env.STRIPE_PRICE_ID_BASIC    || process.env.STRIPE_PRICE_ID_MONTHLY,
+    process.env.STRIPE_PRICE_ID_BASIC_ANNUAL || process.env.STRIPE_PRICE_ID_ANNUAL,
     process.env.STRIPE_PRICE_ID_STANDARD_MONTHLY,
     process.env.STRIPE_PRICE_ID_STANDARD_ANNUAL,
     process.env.STRIPE_PRICE_ID_PRO_MONTHLY,
