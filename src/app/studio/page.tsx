@@ -1,20 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
   FileText, Mic, ChevronRight, Loader2, Download,
-  Copy, Check, RotateCcw, Volume2, Sparkles
+  Copy, Check, RotateCcw, Volume2, Sparkles, Upload, FileDown, Printer
 } from "lucide-react";
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
 import { useLanguage } from "@/contexts/language-context";
 import { getPlanLimits, type PlanType } from "@/lib/quota";
 import { DIALOGUE_TYPE_KEYS, type DialogueType } from "@/lib/dialogue-examples";
 
-// User info (useUser + UserButton) loaded client-side only — Clerk hooks cannot
-// run during build-time static prerendering (no request context, no middleware).
 const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const StudioUser = dynamic(() => import("./_studio-user"), { ssr: false });
 
@@ -24,8 +22,8 @@ type SourceLang = "es" | "en";
 type QuotaInfo = { plan_type: PlanType; dialogues_used: number; audio_used: number } | null;
 
 const INITIAL_CHARACTERS: Character[] = [
-  { id: "a", name: "Persona A", gender: "M", voiceId: ELEVENLABS_VOICES.M[0].id },
-  { id: "b", name: "Persona B", gender: "F", voiceId: ELEVENLABS_VOICES.F[0].id },
+  { id: "a", name: "", gender: "M", voiceId: ELEVENLABS_VOICES.M[0].id },
+  { id: "b", name: "", gender: "F", voiceId: ELEVENLABS_VOICES.F[0].id },
 ];
 
 function playSound(type: "success" | "error") {
@@ -60,12 +58,13 @@ function playSound(type: "success" | "error") {
       });
     }
   } catch {
-    // AudioContext not available (SSR, older browsers) — fail silently
+    // AudioContext not available — fail silently
   }
 }
 
 export default function StudioPage() {
   const { t, tArray } = useLanguage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Cuotas
   const [quota, setQuota] = useState<QuotaInfo>(null);
@@ -87,6 +86,7 @@ export default function StudioPage() {
   const [sourceLang, setSourceLang] = useState<SourceLang>("es");
   const [characters, setCharacters] = useState<Character[]>(INITIAL_CHARACTERS);
   const [outputType, setOutputType] = useState<OutputType>("written");
+  const [importing, setImporting] = useState(false);
 
   // Estado de resultado
   const [loading, setLoading] = useState(false);
@@ -106,6 +106,32 @@ export default function StudioPage() {
     setAudioSrc("");
     setError("");
     setProgress(0);
+  };
+
+  // Import TXT / PDF
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setError("");
+    try {
+      if (file.name.toLowerCase().endsWith(".txt")) {
+        const text = await file.text();
+        setInputText(text);
+      } else if (file.name.toLowerCase().endsWith(".pdf")) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/extract-text", { method: "POST", body: formData });
+        const data = await res.json();
+        if (res.ok) setInputText(data.text);
+        else setError(data.error || "Error al leer el PDF");
+      }
+    } catch {
+      setError("Error al importar el archivo");
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleGenerate = async () => {
@@ -174,12 +200,53 @@ export default function StudioPage() {
     a.click();
   };
 
+  const exportTxt = () => {
+    const blob = new Blob([writtenResult], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dialogo_italiano_${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportPdf = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    const date = new Date().toLocaleDateString();
+    win.document.write(`<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Dialogo in Italiano \u2014 Italianto</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 680px; margin: 48px auto; color: #1a1a1a; line-height: 1.9; }
+  h1 { font-size: 1.1rem; color: #2e7d32; border-bottom: 1px solid #c8e6c9; padding-bottom: 8px; margin-bottom: 16px; }
+  p { font-size: 0.8rem; color: #666; margin-bottom: 24px; }
+  pre { white-space: pre-wrap; font-family: Georgia, serif; font-size: 1rem; margin: 0; }
+  @media print { body { margin: 20mm 25mm; } }
+</style>
+</head>
+<body>
+<h1>\uD83C\uDDEE\uD83C\uDDF9 Dialogo in Italiano &mdash; Italianto Dialogue Studio</h1>
+<p>${date}</p>
+<pre>${writtenResult.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+</body>
+</html>`);
+    win.document.close();
+    setTimeout(() => { win.print(); }, 300);
+  };
+
   const canGoNext = () => {
     if (step === 1) return inputText.trim().length >= 20;
-    if (step === 2) return characters.length >= 2 && characters.every(c => c.name.trim());
-    if (step === 3) return true;
+    if (step === 2) return true; // formato: outputType ya tiene valor por defecto
+    if (step === 3) return characters.length >= 2 && characters.every(c => c.name.trim());
     return false;
   };
+
+  // Permisos de exportación según plan
+  const canExportTxt = quota?.plan_type === "standard" || quota?.plan_type === "pro";
+  const canExportPdf = quota?.plan_type === "pro";
 
   const stepTitles = tArray("studio.stepTitles");
 
@@ -195,8 +262,8 @@ export default function StudioPage() {
           <div className="flex items-center gap-3">
             {quota && (() => {
               const limits = getPlanLimits(quota.plan_type);
-              const dLabel = limits.dialogues === -1 ? "∞" : `${quota.dialogues_used}/${limits.dialogues}`;
-              const aLabel = limits.audio === -1 ? "∞" : `${quota.audio_used}/${limits.audio}`;
+              const dLabel = limits.dialogues === -1 ? "\u221e" : `${quota.dialogues_used}/${limits.dialogues}`;
+              const aLabel = limits.audio === -1 ? "\u221e" : `${quota.audio_used}/${limits.audio}`;
               return (
                 <Link
                   href="/account"
@@ -241,10 +308,36 @@ export default function StudioPage() {
 
         {/* Contenido del paso actual */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+
           {/* PASO 1: Ingreso de diálogo */}
           {step === 1 && (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step1.title")}</h2>
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("studio.step1.title")}</h2>
+                {/* Botón importar archivo */}
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".txt,.pdf"
+                    className="hidden"
+                    onChange={handleFileImport}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={importing}
+                    className="flex items-center gap-1.5 text-xs font-medium text-italianto-700 dark:text-italianto-400 hover:text-italianto-900 dark:hover:text-italianto-300 disabled:opacity-50 border border-italianto-200 dark:border-italianto-700 hover:border-italianto-400 rounded-lg px-3 py-1.5 transition-all"
+                    title={`${t("studio.step1.importTxt")} / ${t("studio.step1.importPdf")}`}
+                  >
+                    {importing ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <Upload size={13} />
+                    )}
+                    {importing ? t("studio.step1.importing") : t("studio.step1.importFile")}
+                  </button>
+                </div>
+              </div>
               <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step1.subtitle")}</p>
 
               <div className="mb-4">
@@ -271,33 +364,32 @@ export default function StudioPage() {
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-slate-300">{t("studio.step1.dialogueTypeLabel")}</label>
-                    <span className="text-xs bg-purple-100 text-purple-700 font-semibold px-2 py-0.5 rounded-full">Pro</span>
+                    <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold px-2 py-0.5 rounded-full">Pro</span>
                   </div>
                   <div className="flex gap-2 flex-wrap">
-                    <button
-                      onClick={() => setDialogueType(undefined)}
-                      className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
-                        dialogueType === undefined
-                          ? "bg-italianto-800 text-white border-italianto-800"
-                          : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
-                      }`}
-                    >
-                      {t("studio.step1.dialogueTypeStandard")}
-                    </button>
                     {DIALOGUE_TYPE_KEYS.map((dt) => (
                       <button
                         key={dt}
-                        onClick={() => setDialogueType(dt)}
+                        onClick={() => setDialogueType(dialogueType === dt ? undefined : dt)}
                         className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
                           dialogueType === dt
                             ? "bg-italianto-800 text-white border-italianto-800"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-italianto-300"
+                            : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
                         }`}
                       >
                         {t(`studio.step1.dialogueType_${dt}`)}
                       </button>
                     ))}
                   </div>
+                  <p className={`mt-2 text-xs rounded-lg px-3 py-2 ${
+                    dialogueType
+                      ? "text-italianto-700 dark:text-italianto-300 bg-italianto-50 dark:bg-italianto-900/20 border border-italianto-100 dark:border-italianto-800"
+                      : "text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600"
+                  }`}>
+                    {dialogueType
+                      ? t(`studio.step1.dialogueTypeNote_${dialogueType}`)
+                      : t("studio.step1.dialogueTypeNoteDefault")}
+                  </p>
                 </div>
               )}
 
@@ -315,17 +407,8 @@ export default function StudioPage() {
             </div>
           )}
 
-          {/* PASO 2: Configurar personajes */}
+          {/* PASO 2: Elegir formato (era paso 3) */}
           {step === 2 && (
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step2.title")}</h2>
-              <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step2.subtitle")}</p>
-              <CharacterBuilder characters={characters} onChange={setCharacters} />
-            </div>
-          )}
-
-          {/* PASO 3: Elegir formato */}
-          {step === 3 && (
             <div className="p-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step3.title")}</h2>
               <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">{t("studio.step3.subtitle")}</p>
@@ -375,20 +458,26 @@ export default function StudioPage() {
                 </button>
               </div>
 
-              {/* Resumen de configuración */}
+              {/* Vista previa del texto ingresado */}
               <div className="mt-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600">
-                <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">{t("studio.step3.summary")}</p>
-                <div className="flex flex-wrap gap-2">
-                  {characters.map((c, i) => (
-                    <span key={c.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-italianto-100 rounded-full text-xs font-medium text-italianto-800">
-                      <span className="w-4 h-4 bg-italianto-800 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
-                        {String.fromCharCode(65 + i)}
-                      </span>
-                      {c.name} · {c.gender === "M" ? "♂" : "♀"}
-                    </span>
-                  ))}
-                </div>
+                <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">{t("studio.step3.summary")}</p>
+                <p className="text-xs text-gray-600 dark:text-slate-300 font-mono whitespace-pre-wrap line-clamp-3">
+                  {inputText.slice(0, 160)}{inputText.length > 160 ? "..." : ""}
+                </p>
               </div>
+            </div>
+          )}
+
+          {/* PASO 3: Configurar personajes (era paso 2) */}
+          {step === 3 && (
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step2.title")}</h2>
+              <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step2.subtitle")}</p>
+              <CharacterBuilder
+                characters={characters}
+                onChange={setCharacters}
+                outputType={outputType}
+              />
             </div>
           )}
 
@@ -416,14 +505,43 @@ export default function StudioPage() {
                     {writtenResult}
                     <button
                       onClick={copyToClipboard}
-                      className="absolute top-3 right-3 p-1.5 bg-white border border-gray-200 rounded-lg hover:bg-italianto-50 transition-colors"
+                      className="absolute top-3 right-3 p-1.5 bg-white dark:bg-slate-600 border border-gray-200 dark:border-slate-500 rounded-lg hover:bg-italianto-50 transition-colors"
                       title="Copiar"
                     >
-                      {copied ? <Check size={14} className="text-italianto-700" /> : <Copy size={14} className="text-gray-500" />}
+                      {copied ? <Check size={14} className="text-italianto-700" /> : <Copy size={14} className="text-gray-500 dark:text-slate-300" />}
                     </button>
                   </div>
                   {copied && (
                     <p className="text-xs text-italianto-600 mt-2 text-center">{t("studio.step4.copied")}</p>
+                  )}
+
+                  {/* Botones de exportación */}
+                  {(canExportTxt || canExportPdf) && (
+                    <div className="flex gap-3 mt-4 flex-wrap">
+                      {canExportTxt && (
+                        <button
+                          onClick={exportTxt}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-italianto-800 dark:text-italianto-300 bg-italianto-50 dark:bg-italianto-900/30 border border-italianto-200 dark:border-italianto-700 rounded-xl hover:bg-italianto-100 dark:hover:bg-italianto-900/50 transition-colors"
+                        >
+                          <FileDown size={15} />
+                          {t("studio.step4.exportTxt")}
+                        </button>
+                      )}
+                      {canExportPdf ? (
+                        <button
+                          onClick={exportPdf}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                        >
+                          <Printer size={15} />
+                          {t("studio.step4.exportPdf")}
+                        </button>
+                      ) : quota?.plan_type === "standard" && (
+                        <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 dark:text-slate-500 border border-dashed border-gray-200 dark:border-slate-600 rounded-xl cursor-not-allowed">
+                          <Printer size={15} />
+                          {t("studio.step4.exportPdf")} — <span className="text-xs">{t("studio.step4.exportPdfPro")}</span>
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -474,7 +592,7 @@ export default function StudioPage() {
               ) : (
                 <button
                   onClick={handleGenerate}
-                  disabled={loading}
+                  disabled={loading || !canGoNext()}
                   className="flex items-center gap-2 px-6 py-2.5 bg-italianto-800 text-white text-sm font-semibold rounded-xl hover:bg-italianto-900 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                 >
                   {loading ? (
@@ -505,7 +623,7 @@ export default function StudioPage() {
 
           {/* Error */}
           {error && (
-            <div className="mx-6 mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            <div className="mx-6 mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm">
               <strong>Error:</strong> {error}
             </div>
           )}

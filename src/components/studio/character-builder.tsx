@@ -30,13 +30,14 @@ export const ELEVENLABS_VOICES = {
 interface Props {
   characters: Character[];
   onChange: (characters: Character[]) => void;
+  outputType: "written" | "audio";
 }
 
 function generateId() {
   return Math.random().toString(36).slice(2, 9);
 }
 
-export default function CharacterBuilder({ characters, onChange }: Props) {
+export default function CharacterBuilder({ characters, onChange, outputType }: Props) {
   const { t } = useLanguage();
 
   const addCharacter = () => {
@@ -46,7 +47,7 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
       ...characters,
       {
         id: generateId(),
-        name: `Persona ${characters.length + 1}`,
+        name: "",
         gender,
         voiceId: ELEVENLABS_VOICES[gender][0].id,
       },
@@ -74,8 +75,13 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
 
   return (
     <div className="space-y-4">
+      {outputType === "written" && (
+        <p className="text-xs text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg px-3 py-2">
+          {t("characters.hintWritten")}
+        </p>
+      )}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-slate-400">
           {t("characters.hint")}
         </p>
         <button
@@ -112,32 +118,35 @@ export default function CharacterBuilder({ characters, onChange }: Props) {
               />
             </div>
 
-            {/* Género */}
-            <div className="w-full sm:w-24">
-              <label className="text-xs text-gray-500 mb-1 block">{t("characters.gender")}</label>
-              <select
-                value={char.gender}
-                onChange={(e) => updateCharacter(char.id, { gender: e.target.value as "M" | "F" })}
-                className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 bg-white"
-              >
-                <option value="M">{t("characters.male")}</option>
-                <option value="F">{t("characters.female")}</option>
-              </select>
-            </div>
+            {/* Género y Voz — solo para audio */}
+            {outputType === "audio" && (
+              <>
+                <div className="w-full sm:w-24">
+                  <label className="text-xs text-gray-500 mb-1 block">{t("characters.gender")}</label>
+                  <select
+                    value={char.gender}
+                    onChange={(e) => updateCharacter(char.id, { gender: e.target.value as "M" | "F" })}
+                    className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 bg-white"
+                  >
+                    <option value="M">{t("characters.male")}</option>
+                    <option value="F">{t("characters.female")}</option>
+                  </select>
+                </div>
 
-            {/* Voz */}
-            <div className="w-full sm:w-32">
-              <label className="text-xs text-gray-500 mb-1 block">{t("characters.voice")}</label>
-              <select
-                value={char.voiceId}
-                onChange={(e) => updateCharacter(char.id, { voiceId: e.target.value })}
-                className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 bg-white"
-              >
-                {ELEVENLABS_VOICES[char.gender].map((v) => (
-                  <option key={v.id} value={v.id}>{v.name}</option>
-                ))}
-              </select>
-            </div>
+                <div className="w-full sm:w-32">
+                  <label className="text-xs text-gray-500 mb-1 block">{t("characters.voice")}</label>
+                  <select
+                    value={char.voiceId}
+                    onChange={(e) => updateCharacter(char.id, { voiceId: e.target.value })}
+                    className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 bg-white"
+                  >
+                    {ELEVENLABS_VOICES[char.gender].map((v) => (
+                      <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
 
             {/* Eliminar */}
             <button

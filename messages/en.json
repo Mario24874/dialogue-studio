@@ -7,7 +7,7 @@
     "about": "About",
     "signIn": "Sign In",
     "signUp": "Get Started",
-    "goToStudio": "Go to Studio"
+    "goToStudio": "Generate Dialogue"
   },
 
   "landing": {
@@ -81,10 +81,17 @@
       "chars": "{n} characters",
       "minChars": "(minimum 20)",
       "dialogueTypeLabel": "Dialogue type",
-      "dialogueTypeStandard": "Standard",
       "dialogueType_formal": "Formal",
       "dialogueType_informal": "Informal",
-      "dialogueType_technical": "Technical"
+      "dialogueType_technical": "Technical",
+      "dialogueTypeNoteDefault": "Select a type to adapt the style of the generated dialogue.",
+      "dialogueTypeNote_formal": "The AI will generate the dialogue with polite, structured and professional language.",
+      "dialogueTypeNote_informal": "The AI will generate the dialogue with colloquial, natural and everyday language.",
+      "dialogueTypeNote_technical": "The AI will generate the dialogue with specialized terminology based on your context.",
+      "importFile": "Import file",
+      "importTxt": "Upload TXT",
+      "importPdf": "Upload PDF",
+      "importing": "Reading file..."
     },
     "step2": {
       "title": "Set up characters",
@@ -107,7 +114,10 @@
       "audioTitle": "Dialogue audio",
       "downloadMp3": "Download MP3",
       "copied": "Copied to clipboard!",
-      "audioNotSupported": "Your browser does not support the audio element."
+      "audioNotSupported": "Your browser does not support the audio element.",
+      "exportTxt": "Export TXT",
+      "exportPdf": "Export PDF",
+      "exportPdfPro": "Pro Plan only"
     },
     "nav": {
       "prev": "← Previous",
@@ -117,11 +127,12 @@
       "generating": "Generating...",
       "finishing": "Finishing..."
     },
-    "stepTitles": ["Enter dialogue", "Set up characters", "Choose format", "Result"]
+    "stepTitles": ["Enter dialogue", "Choose format", "Set up characters", "Result"]
   },
 
   "characters": {
     "hint": "Set up each dialogue participant (min. 2, max. 6)",
+    "hintWritten": "Text mode: you only need to assign names. Gender and voice are only used for audio dialogues.",
     "add": "Add character",
     "name": "Name",
     "namePlaceholder": "Character name",

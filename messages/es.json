@@ -7,7 +7,7 @@
     "about": "Nosotros",
     "signIn": "Iniciar sesión",
     "signUp": "Comenzar",
-    "goToStudio": "Ir al Studio"
+    "goToStudio": "Generar Diálogo"
   },
 
   "landing": {
@@ -81,10 +81,17 @@
       "chars": "{n} caracteres",
       "minChars": "(mínimo 20)",
       "dialogueTypeLabel": "Tipo de diálogo",
-      "dialogueTypeStandard": "Estándar",
       "dialogueType_formal": "Formal",
       "dialogueType_informal": "Informal",
-      "dialogueType_technical": "Técnico"
+      "dialogueType_technical": "Técnico",
+      "dialogueTypeNoteDefault": "Selecciona un tipo para adaptar el estilo del diálogo generado.",
+      "dialogueTypeNote_formal": "La IA generará el diálogo con lenguaje educado, estructurado y profesional.",
+      "dialogueTypeNote_informal": "La IA generará el diálogo con lenguaje coloquial, natural y cotidiano.",
+      "dialogueTypeNote_technical": "La IA generará el diálogo con terminología especializada según el contexto.",
+      "importFile": "Importar archivo",
+      "importTxt": "Subir TXT",
+      "importPdf": "Subir PDF",
+      "importing": "Leyendo archivo..."
     },
     "step2": {
       "title": "Configura los personajes",
@@ -107,7 +114,10 @@
       "audioTitle": "Audio del diálogo",
       "downloadMp3": "Descargar MP3",
       "copied": "¡Copiado al portapapeles!",
-      "audioNotSupported": "Tu navegador no soporta el elemento audio."
+      "audioNotSupported": "Tu navegador no soporta el elemento audio.",
+      "exportTxt": "Exportar TXT",
+      "exportPdf": "Exportar PDF",
+      "exportPdfPro": "Solo Plan Pro"
     },
     "nav": {
       "prev": "← Anterior",
@@ -117,11 +127,12 @@
       "generating": "Generando...",
       "finishing": "Finalizando..."
     },
-    "stepTitles": ["Ingresa el diálogo", "Configura personajes", "Elige el formato", "Resultado"]
+    "stepTitles": ["Ingresa el diálogo", "Elige el formato", "Configura personajes", "Resultado"]
   },
 
   "characters": {
     "hint": "Configura cada participante del diálogo (mín. 2, máx. 6)",
+    "hintWritten": "Modo texto: solo necesitas asignar nombres. El género y la voz se usan únicamente para diálogos de audio.",
     "add": "Agregar personaje",
     "name": "Nombre",
     "namePlaceholder": "Nombre del personaje",

@@ -7,7 +7,7 @@
     "about": "Chi siamo",
     "signIn": "Accedi",
     "signUp": "Inizia",
-    "goToStudio": "Vai allo Studio"
+    "goToStudio": "Genera Dialogo"
   },
 
   "landing": {
@@ -81,10 +81,17 @@
       "chars": "{n} caratteri",
       "minChars": "(minimo 20)",
       "dialogueTypeLabel": "Tipo di dialogo",
-      "dialogueTypeStandard": "Standard",
       "dialogueType_formal": "Formale",
       "dialogueType_informal": "Informale",
-      "dialogueType_technical": "Tecnico"
+      "dialogueType_technical": "Tecnico",
+      "dialogueTypeNoteDefault": "Seleziona un tipo per adattare lo stile del dialogo generato.",
+      "dialogueTypeNote_formal": "L'IA genererà il dialogo con linguaggio formale, strutturato e professionale.",
+      "dialogueTypeNote_informal": "L'IA genererà il dialogo con linguaggio colloquiale, naturale e quotidiano.",
+      "dialogueTypeNote_technical": "L'IA genererà il dialogo con terminologia specializzata in base al contesto.",
+      "importFile": "Importa file",
+      "importTxt": "Carica TXT",
+      "importPdf": "Carica PDF",
+      "importing": "Lettura file..."
     },
     "step2": {
       "title": "Configura i personaggi",
@@ -107,7 +114,10 @@
       "audioTitle": "Audio del dialogo",
       "downloadMp3": "Scarica MP3",
       "copied": "Copiato negli appunti!",
-      "audioNotSupported": "Il tuo browser non supporta l'elemento audio."
+      "audioNotSupported": "Il tuo browser non supporta l'elemento audio.",
+      "exportTxt": "Esporta TXT",
+      "exportPdf": "Esporta PDF",
+      "exportPdfPro": "Solo Piano Pro"
     },
     "nav": {
       "prev": "← Precedente",
@@ -117,11 +127,12 @@
       "generating": "Generazione in corso...",
       "finishing": "Finalizzazione..."
     },
-    "stepTitles": ["Inserisci il dialogo", "Configura personaggi", "Scegli formato", "Risultato"]
+    "stepTitles": ["Inserisci il dialogo", "Scegli formato", "Configura personaggi", "Risultato"]
   },
 
   "characters": {
     "hint": "Configura ogni partecipante al dialogo (min. 2, max. 6)",
+    "hintWritten": "Modalità testo: devi solo assegnare i nomi. Genere e voce si usano solo per i dialoghi audio.",
     "add": "Aggiungi personaggio",
     "name": "Nome",
     "namePlaceholder": "Nome del personaggio",
