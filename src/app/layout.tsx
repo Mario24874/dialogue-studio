@@ -4,6 +4,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import MobileAppBanner from "@/components/layout/mobile-app-banner";
+import SplashScreen from "@/components/splash-screen";
 
 export const metadata: Metadata = {
   title: "Italianto Dialogue Studio",
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Italianto",
+    title: "Dialogue Studio",
   },
   openGraph: {
     title: "Italianto Dialogue Studio",
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body data-v="3">
         <ThemeProvider>
           <LanguageProvider>
+            <SplashScreen />
             {children}
             <MobileAppBanner />
           </LanguageProvider>

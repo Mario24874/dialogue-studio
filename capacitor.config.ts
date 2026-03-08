@@ -4,7 +4,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 const config: CapacitorConfig = {
   appId: "com.italianto.dialoguestudio",
-  appName: "Italianto Dialogue Studio",
+  appName: "Dialogue Studio",
   // En producción apunta a Netlify; en desarrollo al localhost
   webDir: "out",
   server: isProd
