@@ -39,10 +39,20 @@ export default function MobileAppBanner() {
     if (isStandaloneMode()) return;
     const detected = detectPlatform();
     if (!detected) return;
-    const dismissed = sessionStorage.getItem("app_banner_dismissed");
-    if (dismissed) return;
 
-    // Catch native PWA install prompt (Android Chrome)
+    try {
+      // Solo mostrar si el onboarding ya fue completado
+      const onboardingDone = localStorage.getItem("onboarding_completed");
+      if (!onboardingDone) return;
+
+      // Respetar dismissal con TTL de 7 días
+      const dismissedUntil = localStorage.getItem("banner_dismissed_until");
+      if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) return;
+    } catch {
+      return;
+    }
+
+    // Capturar prompt nativo de instalación (Android Chrome)
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
@@ -50,7 +60,7 @@ export default function MobileAppBanner() {
     window.addEventListener("beforeinstallprompt", handler);
 
     setPlatform(detected);
-    const timer = setTimeout(() => setVisible(true), 1200);
+    const timer = setTimeout(() => setVisible(true), 1500);
     return () => {
       clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", handler);
@@ -59,7 +69,10 @@ export default function MobileAppBanner() {
 
   const dismiss = () => {
     setVisible(false);
-    sessionStorage.setItem("app_banner_dismissed", "1");
+    try {
+      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      localStorage.setItem("banner_dismissed_until", String(Date.now() + SEVEN_DAYS));
+    } catch {}
   };
 
   const handleInstall = async () => {

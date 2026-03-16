@@ -328,6 +328,37 @@
     }
   },
 
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "start": "Get started!",
+    "slide1": {
+      "title": "Welcome to Dialogue Studio",
+      "desc": "Generate Italian dialogues with AI. Learn with real conversations, written or as natural audio."
+    },
+    "slide2": {
+      "title": "Translate your dialogues",
+      "desc": "Write in Spanish or English and get the Italian dialogue with professional formatting or as audio with real voices."
+    },
+    "slide3": {
+      "title": "Generate with AI",
+      "desc": "Describe the context, choose the style and AI creates the complete dialogue in Italian for you."
+    },
+    "slide4": {
+      "title": "Natural voices",
+      "desc": "ElevenLabs gives voice to each character. Download the MP3 and practice anytime."
+    },
+    "install": {
+      "title": "Install the app",
+      "subtitle": "Access faster from your home screen",
+      "button": "Install now",
+      "installing": "Installing...",
+      "iosHint": "Tap the Share button → Add to Home Screen",
+      "androidHint": "Use the browser menu → Add to Home Screen"
+    }
+  },
+
   "account": {
     "title": "My Account",
     "plan": "Active plan",

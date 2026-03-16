@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import MobileAppBanner from "@/components/layout/mobile-app-banner";
 import SplashScreen from "@/components/splash-screen";
+import Onboarding from "@/components/onboarding";
 
 export const metadata: Metadata = {
   title: "Italianto Dialogue Studio",
@@ -46,6 +47,7 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <SplashScreen />
+            <Onboarding />
             {children}
             <MobileAppBanner />
           </LanguageProvider>

@@ -328,6 +328,37 @@
     }
   },
 
+  "onboarding": {
+    "skip": "Salta",
+    "next": "Avanti",
+    "back": "Indietro",
+    "start": "Inizia!",
+    "slide1": {
+      "title": "Benvenuto in Dialogue Studio",
+      "desc": "Genera dialoghi in italiano con IA. Impara con conversazioni reali, scritte o come audio naturale."
+    },
+    "slide2": {
+      "title": "Traduci i tuoi dialoghi",
+      "desc": "Scrivi in spagnolo o inglese e ottieni il dialogo in italiano con formattazione professionale o come audio con voci reali."
+    },
+    "slide3": {
+      "title": "Genera con IA",
+      "desc": "Descrivi il contesto, scegli lo stile e l'IA crea il dialogo completo in italiano per te."
+    },
+    "slide4": {
+      "title": "Voci naturali",
+      "desc": "ElevenLabs dà voce a ogni personaggio. Scarica il MP3 e pratica in qualsiasi momento."
+    },
+    "install": {
+      "title": "Installa l'app",
+      "subtitle": "Accedi più velocemente dalla tua schermata iniziale",
+      "button": "Installa ora",
+      "installing": "Installazione...",
+      "iosHint": "Tocca il pulsante Condividi → Aggiungi a schermata Home",
+      "androidHint": "Usa il menu del browser → Aggiungi alla schermata Home"
+    }
+  },
+
   "account": {
     "title": "Il Mio Account",
     "plan": "Piano attivo",
