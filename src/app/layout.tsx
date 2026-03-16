@@ -39,6 +39,8 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/Logo_ItaliAnto.png" />
         {/* Prevent dark mode flash on reload */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');})();` }} />
+        {/* Register Service Worker for PWA installability */}
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}` }} />
       </head>
       <body data-v="3">
         <ThemeProvider>
