@@ -127,7 +127,30 @@
       "generating": "Generating...",
       "finishing": "Finishing..."
     },
-    "stepTitles": ["Enter dialogue", "Choose format", "Set up characters", "Result"]
+    "stepTitles": ["Enter dialogue", "Choose format", "Set up characters", "Result"],
+    "stepTitlesDynamic": ["Describe dialogue", "Choose format", "Set up characters", "Result"],
+    "modeSelector": {
+      "title": "How do you want to create the dialogue?",
+      "translate": "Translate my dialogue",
+      "translateDesc": "Write the conversation and we'll translate it to Italian",
+      "generate": "Generate with AI",
+      "generateDesc": "Describe the context and AI creates the dialogue in Italian"
+    },
+    "step1Dynamic": {
+      "title": "Describe the dialogue",
+      "subtitle": "The more specific the context, the better the result.",
+      "typeLabel": "Dialogue type",
+      "typeRequired": "Select a type to continue",
+      "contextLabel": "Conversation context",
+      "contextPlaceholder": "E.g.: A support technician helps a customer whose printer stopped working after updating Windows. The technician guides them step by step to reinstall the driver.",
+      "contextChars": "{n} / 300",
+      "contextShort": "Add more detail for a better result",
+      "contextGood": "Good level of detail",
+      "turnLabel": "Number of turns",
+      "turn4": "Short · 4",
+      "turn6": "Medium · 6",
+      "turn8": "Long · 8"
+    }
   },
 
   "characters": {

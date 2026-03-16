@@ -95,25 +95,30 @@ export async function POST(req: NextRequest) {
       voiceMap[char.name] = char.voiceId;
     }
 
+    // Filtrar líneas que tienen voz asignada, preservando orden
+    const lineRequests = lines
+      .map((line, i) => ({ line, voiceId: voiceMap[line.name], index: i }))
+      .filter((item) => {
+        if (!item.voiceId) {
+          console.warn(`No se encontró voz para: ${item.line.name}`);
+          return false;
+        }
+        return true;
+      });
+
+    // Generar todo el audio en paralelo (reduce tiempo ~4x vs secuencial)
+    const audioSegments = await Promise.all(
+      lineRequests.map(({ line, voiceId }) => generateSpeech(line.text, voiceId))
+    );
+
+    // Intercalar silencio entre líneas (en orden)
     const segments: Uint8Array[] = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const voiceId = voiceMap[line.name];
-
-      if (!voiceId) {
-        console.warn(`No se encontró voz para: ${line.name}`);
-        continue;
-      }
-
-      const audioData = await generateSpeech(line.text, voiceId);
+    audioSegments.forEach((audioData, i) => {
       segments.push(audioData);
-
-      // Silencio entre líneas (no después de la última)
-      if (i < lines.length - 1) {
+      if (i < audioSegments.length - 1) {
         segments.push(SILENCE_FRAME);
       }
-    }
+    });
 
     if (segments.length === 0) {
       return NextResponse.json(

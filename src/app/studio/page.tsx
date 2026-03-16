@@ -6,7 +6,8 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
   FileText, Mic, ChevronRight, Loader2, Download,
-  Copy, Check, RotateCcw, Volume2, Sparkles, Upload, FileDown, Printer
+  Copy, Check, RotateCcw, Volume2, Sparkles, Upload, FileDown, Printer,
+  Wand2, PenLine,
 } from "lucide-react";
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
 import { useLanguage } from "@/contexts/language-context";
@@ -19,6 +20,8 @@ const StudioUser = dynamic(() => import("./_studio-user"), { ssr: false });
 type Step = 1 | 2 | 3 | 4;
 type OutputType = "written" | "audio";
 type SourceLang = "es" | "en";
+type StudioMode = "translate" | "generate";
+type TurnCount = 4 | 6 | 8;
 type QuotaInfo = { plan_type: PlanType; dialogues_used: number; audio_used: number } | null;
 
 const INITIAL_CHARACTERS: Character[] = [
@@ -81,9 +84,16 @@ export default function StudioPage() {
 
   // Estado del flujo
   const [step, setStep] = useState<Step>(1);
+  const [studioMode, setStudioMode] = useState<StudioMode>("translate");
+  // Modo traducir
   const [dialogueType, setDialogueType] = useState<DialogueType | undefined>(undefined);
   const [inputText, setInputText] = useState("");
   const [sourceLang, setSourceLang] = useState<SourceLang>("es");
+  // Modo generar
+  const [dynamicDialogueType, setDynamicDialogueType] = useState<DialogueType | undefined>(undefined);
+  const [dynamicContext, setDynamicContext] = useState("");
+  const [turnCount, setTurnCount] = useState<TurnCount>(6);
+  // Compartido
   const [characters, setCharacters] = useState<Character[]>(INITIAL_CHARACTERS);
   const [outputType, setOutputType] = useState<OutputType>("written");
   const [importing, setImporting] = useState(false);
@@ -99,6 +109,9 @@ export default function StudioPage() {
   const resetStudio = () => {
     setStep(1);
     setInputText("");
+    setDynamicContext("");
+    setDynamicDialogueType(undefined);
+    setTurnCount(6);
     setCharacters(INITIAL_CHARACTERS);
     setOutputType("written");
     setDialogueType(undefined);
@@ -106,6 +119,7 @@ export default function StudioPage() {
     setAudioSrc("");
     setError("");
     setProgress(0);
+    // studioMode se mantiene: el usuario elige de nuevo
   };
 
   // Import TXT / PDF
@@ -142,17 +156,34 @@ export default function StudioPage() {
     setProgress(10);
 
     try {
-      const translateRes = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputText, sourceLang, characters, dialogueType }),
-      });
-      setProgress(40);
+      let translatedLines: Array<{ name: string; text: string }>;
 
-      const translateData = await translateRes.json();
-      if (!translateRes.ok) throw new Error(translateData.error || "Error en la traducción");
-
-      const translatedLines: Array<{ name: string; text: string }> = translateData.lines;
+      if (studioMode === "translate") {
+        const translateRes = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: inputText, sourceLang, characters, dialogueType }),
+        });
+        setProgress(40);
+        const translateData = await translateRes.json();
+        if (!translateRes.ok) throw new Error(translateData.error || "Error en la traducción");
+        translatedLines = translateData.lines;
+      } else {
+        const generateRes = await fetch("/api/generate-dialogue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            context: dynamicContext,
+            dialogueType: dynamicDialogueType,
+            characters,
+            turnCount,
+          }),
+        });
+        setProgress(40);
+        const generateData = await generateRes.json();
+        if (!generateRes.ok) throw new Error(generateData.error || "Error al generar el diálogo");
+        translatedLines = generateData.lines;
+      }
 
       if (outputType === "written") {
         const formatted = translatedLines
@@ -238,7 +269,10 @@ export default function StudioPage() {
   };
 
   const canGoNext = () => {
-    if (step === 1) return inputText.trim().length >= 20;
+    if (step === 1) {
+      if (studioMode === "translate") return inputText.trim().length >= 20;
+      return dynamicContext.trim().length >= 20 && dynamicDialogueType !== undefined;
+    }
     if (step === 2) return true; // formato: outputType ya tiene valor por defecto
     if (step === 3) return characters.length >= 2 && characters.every(c => c.name.trim());
     return false;
@@ -248,7 +282,14 @@ export default function StudioPage() {
   const canExportTxt = quota?.plan_type === "standard" || quota?.plan_type === "pro";
   const canExportPdf = quota?.plan_type === "pro";
 
-  const stepTitles = tArray("studio.stepTitles");
+  const stepTitles = tArray(studioMode === "generate" ? "studio.stepTitlesDynamic" : "studio.stepTitles");
+
+  // Indicador de calidad del contexto dinámico
+  const contextQuality =
+    dynamicContext.length === 0 ? "empty"
+    : dynamicContext.length < 20 ? "short"
+    : dynamicContext.length < 80 ? "medium"
+    : "good";
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col">
@@ -312,98 +353,229 @@ export default function StudioPage() {
           {/* PASO 1: Ingreso de diálogo */}
           {step === 1 && (
             <div className="p-6">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("studio.step1.title")}</h2>
-                {/* Botón importar archivo */}
-                <div className="flex items-center gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".txt,.pdf"
-                    className="hidden"
-                    onChange={handleFileImport}
-                  />
+
+              {/* ── Selector de modo ── */}
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+                  {t("studio.modeSelector.title")}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
                   <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={importing}
-                    className="flex items-center gap-1.5 text-xs font-medium text-italianto-700 dark:text-italianto-400 hover:text-italianto-900 dark:hover:text-italianto-300 disabled:opacity-50 border border-italianto-200 dark:border-italianto-700 hover:border-italianto-400 rounded-lg px-3 py-1.5 transition-all"
-                    title={`${t("studio.step1.importTxt")} / ${t("studio.step1.importPdf")}`}
+                    onClick={() => { setStudioMode("translate"); setStep(1); }}
+                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      studioMode === "translate"
+                        ? "border-italianto-700 bg-italianto-50 dark:bg-italianto-900/20"
+                        : "border-gray-200 dark:border-slate-600 hover:border-italianto-300 bg-white dark:bg-slate-700"
+                    }`}
                   >
-                    {importing ? (
-                      <Loader2 size={13} className="animate-spin" />
-                    ) : (
-                      <Upload size={13} />
-                    )}
-                    {importing ? t("studio.step1.importing") : t("studio.step1.importFile")}
+                    <div className="flex items-center gap-2 mb-1">
+                      <PenLine size={15} className={studioMode === "translate" ? "text-italianto-700 dark:text-italianto-400" : "text-gray-400"} />
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{t("studio.modeSelector.translate")}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">{t("studio.modeSelector.translateDesc")}</p>
+                  </button>
+                  <button
+                    onClick={() => { setStudioMode("generate"); setStep(1); }}
+                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                      studioMode === "generate"
+                        ? "border-italianto-700 bg-italianto-50 dark:bg-italianto-900/20"
+                        : "border-gray-200 dark:border-slate-600 hover:border-italianto-300 bg-white dark:bg-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Wand2 size={15} className={studioMode === "generate" ? "text-italianto-700 dark:text-italianto-400" : "text-gray-400"} />
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{t("studio.modeSelector.generate")}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">{t("studio.modeSelector.generateDesc")}</p>
                   </button>
                 </div>
               </div>
-              <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step1.subtitle")}</p>
 
-              <div className="mb-4">
-                <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">{t("studio.step1.langLabel")}</label>
-                <div className="flex gap-3">
-                  {(["es", "en"] as SourceLang[]).map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => setSourceLang(lang)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                        sourceLang === lang
-                          ? "bg-italianto-800 text-white border-italianto-800"
-                          : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
-                      }`}
-                    >
-                      {lang === "es" ? t("studio.step1.langEs") : t("studio.step1.langEn")}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Selector tipo de diálogo — solo Pro */}
-              {quota?.plan_type === "pro" && (
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300">{t("studio.step1.dialogueTypeLabel")}</label>
-                    <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold px-2 py-0.5 rounded-full">Pro</span>
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {DIALOGUE_TYPE_KEYS.map((dt) => (
+              {/* ── MODO TRADUCIR ── */}
+              {studioMode === "translate" && (
+                <>
+                  <div className="flex items-center justify-between mb-1">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("studio.step1.title")}</h2>
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".txt,.pdf"
+                        className="hidden"
+                        onChange={handleFileImport}
+                      />
                       <button
-                        key={dt}
-                        onClick={() => setDialogueType(dialogueType === dt ? undefined : dt)}
-                        className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
-                          dialogueType === dt
-                            ? "bg-italianto-800 text-white border-italianto-800"
-                            : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
-                        }`}
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={importing}
+                        className="flex items-center gap-1.5 text-xs font-medium text-italianto-700 dark:text-italianto-400 hover:text-italianto-900 dark:hover:text-italianto-300 disabled:opacity-50 border border-italianto-200 dark:border-italianto-700 hover:border-italianto-400 rounded-lg px-3 py-1.5 transition-all"
+                        title={`${t("studio.step1.importTxt")} / ${t("studio.step1.importPdf")}`}
                       >
-                        {t(`studio.step1.dialogueType_${dt}`)}
+                        {importing ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                        {importing ? t("studio.step1.importing") : t("studio.step1.importFile")}
                       </button>
-                    ))}
+                    </div>
                   </div>
-                  <p className={`mt-2 text-xs rounded-lg px-3 py-2 ${
-                    dialogueType
-                      ? "text-italianto-700 dark:text-italianto-300 bg-italianto-50 dark:bg-italianto-900/20 border border-italianto-100 dark:border-italianto-800"
-                      : "text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600"
-                  }`}>
-                    {dialogueType
-                      ? t(`studio.step1.dialogueTypeNote_${dialogueType}`)
-                      : t("studio.step1.dialogueTypeNoteDefault")}
+                  <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step1.subtitle")}</p>
+
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">{t("studio.step1.langLabel")}</label>
+                    <div className="flex gap-3">
+                      {(["es", "en"] as SourceLang[]).map((lang) => (
+                        <button
+                          key={lang}
+                          onClick={() => setSourceLang(lang)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            sourceLang === lang
+                              ? "bg-italianto-800 text-white border-italianto-800"
+                              : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
+                          }`}
+                        >
+                          {lang === "es" ? t("studio.step1.langEs") : t("studio.step1.langEn")}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Selector tipo de diálogo — solo Pro */}
+                  {quota?.plan_type === "pro" && (
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-slate-300">{t("studio.step1.dialogueTypeLabel")}</label>
+                        <span className="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold px-2 py-0.5 rounded-full">Pro</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {DIALOGUE_TYPE_KEYS.map((dt) => (
+                          <button
+                            key={dt}
+                            onClick={() => setDialogueType(dialogueType === dt ? undefined : dt)}
+                            className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
+                              dialogueType === dt
+                                ? "bg-italianto-800 text-white border-italianto-800"
+                                : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
+                            }`}
+                          >
+                            {t(`studio.step1.dialogueType_${dt}`)}
+                          </button>
+                        ))}
+                      </div>
+                      <p className={`mt-2 text-xs rounded-lg px-3 py-2 ${
+                        dialogueType
+                          ? "text-italianto-700 dark:text-italianto-300 bg-italianto-50 dark:bg-italianto-900/20 border border-italianto-100 dark:border-italianto-800"
+                          : "text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-700 border border-gray-100 dark:border-slate-600"
+                      }`}>
+                        {dialogueType
+                          ? t(`studio.step1.dialogueTypeNote_${dialogueType}`)
+                          : t("studio.step1.dialogueTypeNoteDefault")}
+                      </p>
+                    </div>
+                  )}
+
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    rows={10}
+                    className="w-full px-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent resize-none transition-all font-mono"
+                    placeholder={t("studio.step1.placeholder")}
+                  />
+                  <p className="text-xs text-gray-400 dark:text-slate-500 mt-2 text-right">
+                    {t("studio.step1.chars", { n: String(inputText.length) })}
+                    {inputText.length < 20 && inputText.length > 0 && ` ${t("studio.step1.minChars")}`}
                   </p>
-                </div>
+                </>
               )}
 
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                rows={10}
-                className="w-full px-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent resize-none transition-all font-mono"
-                placeholder={t("studio.step1.placeholder")}
-              />
-              <p className="text-xs text-gray-400 dark:text-slate-500 mt-2 text-right">
-                {t("studio.step1.chars", { n: String(inputText.length) })}
-                {inputText.length < 20 && inputText.length > 0 && ` ${t("studio.step1.minChars")}`}
-              </p>
+              {/* ── MODO GENERAR ── */}
+              {studioMode === "generate" && (
+                <>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t("studio.step1Dynamic.title")}</h2>
+                  <p className="text-gray-500 dark:text-slate-400 text-sm mb-5">{t("studio.step1Dynamic.subtitle")}</p>
+
+                  {/* Tipo de diálogo (requerido) */}
+                  <div className="mb-5">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">
+                      {t("studio.step1Dynamic.typeLabel")}
+                      <span className="ml-2 text-xs text-red-500">*</span>
+                    </label>
+                    <div className="flex gap-2 flex-wrap">
+                      {DIALOGUE_TYPE_KEYS.map((dt) => (
+                        <button
+                          key={dt}
+                          onClick={() => setDynamicDialogueType(dynamicDialogueType === dt ? undefined : dt)}
+                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            dynamicDialogueType === dt
+                              ? "bg-italianto-800 text-white border-italianto-800"
+                              : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
+                          }`}
+                        >
+                          {t(`studio.step1.dialogueType_${dt}`)}
+                        </button>
+                      ))}
+                    </div>
+                    {dynamicDialogueType && (
+                      <p className="mt-2 text-xs text-italianto-700 dark:text-italianto-300 bg-italianto-50 dark:bg-italianto-900/20 border border-italianto-100 dark:border-italianto-800 rounded-lg px-3 py-2">
+                        {t(`studio.step1.dialogueTypeNote_${dynamicDialogueType}`)}
+                      </p>
+                    )}
+                    {!dynamicDialogueType && (
+                      <p className="mt-2 text-xs text-gray-400 dark:text-slate-500">
+                        {t("studio.step1Dynamic.typeRequired")}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Contexto */}
+                  <div className="mb-5">
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">
+                      {t("studio.step1Dynamic.contextLabel")}
+                    </label>
+                    <textarea
+                      value={dynamicContext}
+                      onChange={(e) => setDynamicContext(e.target.value.slice(0, 300))}
+                      rows={5}
+                      className="w-full px-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-italianto-500 focus:border-transparent resize-none transition-all"
+                      placeholder={t("studio.step1Dynamic.contextPlaceholder")}
+                    />
+                    <div className="flex items-center justify-between mt-2">
+                      <span className={`text-xs font-medium ${
+                        contextQuality === "short" ? "text-red-500" :
+                        contextQuality === "medium" ? "text-yellow-600 dark:text-yellow-400" :
+                        contextQuality === "good" ? "text-green-600 dark:text-green-400" :
+                        "text-gray-400"
+                      }`}>
+                        {contextQuality === "short" && dynamicContext.length > 0 && t("studio.step1Dynamic.contextShort")}
+                        {contextQuality === "medium" && t("studio.step1Dynamic.contextShort")}
+                        {contextQuality === "good" && t("studio.step1Dynamic.contextGood")}
+                      </span>
+                      <span className={`text-xs ${dynamicContext.length >= 280 ? "text-orange-500" : "text-gray-400 dark:text-slate-500"}`}>
+                        {t("studio.step1Dynamic.contextChars", { n: String(dynamicContext.length) })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Número de intervenciones */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-2 block">
+                      {t("studio.step1Dynamic.turnLabel")}
+                    </label>
+                    <div className="flex gap-2">
+                      {([4, 6, 8] as TurnCount[]).map((n) => (
+                        <button
+                          key={n}
+                          onClick={() => setTurnCount(n)}
+                          className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            turnCount === n
+                              ? "bg-italianto-800 text-white border-italianto-800"
+                              : "bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 border-gray-200 dark:border-slate-600 hover:border-italianto-300"
+                          }`}
+                        >
+                          {t(`studio.step1Dynamic.turn${n}`)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
             </div>
           )}
 
@@ -458,12 +630,25 @@ export default function StudioPage() {
                 </button>
               </div>
 
-              {/* Vista previa del texto ingresado */}
+              {/* Vista previa */}
               <div className="mt-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600">
                 <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">{t("studio.step3.summary")}</p>
-                <p className="text-xs text-gray-600 dark:text-slate-300 font-mono whitespace-pre-wrap line-clamp-3">
-                  {inputText.slice(0, 160)}{inputText.length > 160 ? "..." : ""}
-                </p>
+                {studioMode === "translate" ? (
+                  <p className="text-xs text-gray-600 dark:text-slate-300 font-mono whitespace-pre-wrap line-clamp-3">
+                    {inputText.slice(0, 160)}{inputText.length > 160 ? "..." : ""}
+                  </p>
+                ) : (
+                  <div>
+                    {dynamicDialogueType && (
+                      <span className="inline-block text-xs font-semibold bg-italianto-100 dark:bg-italianto-900/40 text-italianto-700 dark:text-italianto-300 px-2 py-0.5 rounded-full mb-2">
+                        {t(`studio.step1.dialogueType_${dynamicDialogueType}`)}
+                      </span>
+                    )}
+                    <p className="text-xs text-gray-600 dark:text-slate-300 whitespace-pre-wrap line-clamp-3">
+                      {dynamicContext.slice(0, 160)}{dynamicContext.length > 160 ? "..." : ""}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}

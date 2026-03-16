@@ -127,7 +127,30 @@
       "generating": "Generando...",
       "finishing": "Finalizando..."
     },
-    "stepTitles": ["Ingresa el diálogo", "Elige el formato", "Configura personajes", "Resultado"]
+    "stepTitles": ["Ingresa el diálogo", "Elige el formato", "Configura personajes", "Resultado"],
+    "stepTitlesDynamic": ["Describe el diálogo", "Elige el formato", "Configura personajes", "Resultado"],
+    "modeSelector": {
+      "title": "¿Cómo quieres crear el diálogo?",
+      "translate": "Traducir mi diálogo",
+      "translateDesc": "Escribe la conversación y la traducimos al italiano",
+      "generate": "Generar con IA",
+      "generateDesc": "Describe el contexto y la IA crea el diálogo en italiano"
+    },
+    "step1Dynamic": {
+      "title": "Describe el diálogo",
+      "subtitle": "Cuanto más específico sea el contexto, mejor será el resultado.",
+      "typeLabel": "Tipo de diálogo",
+      "typeRequired": "Selecciona el tipo para continuar",
+      "contextLabel": "Contexto de la conversación",
+      "contextPlaceholder": "Ej: Un técnico de soporte ayuda a un cliente cuya impresora dejó de funcionar después de actualizar Windows. El técnico le guía paso a paso para reinstalar el driver.",
+      "contextChars": "{n} / 300",
+      "contextShort": "Agrega más detalle para un mejor resultado",
+      "contextGood": "Buen nivel de detalle",
+      "turnLabel": "Número de intervenciones",
+      "turn4": "Corto · 4",
+      "turn6": "Medio · 6",
+      "turn8": "Largo · 8"
+    }
   },
 
   "characters": {
