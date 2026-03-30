@@ -1,6 +1,6 @@
 {
-  "name": "Italianto Dialogue Studio",
-  "short_name": "Italianto",
+  "name": "Dialoghi Studio",
+  "short_name": "Dialoghi Studio",
   "description": "Genera diálogos en italiano con IA — Generate Italian dialogues with AI",
   "start_url": "/",
   "display": "standalone",
@@ -12,13 +12,7 @@
   "icons": [
     {
       "src": "/Logo_ItaliAnto.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/Logo_ItaliAnto.png",
-      "sizes": "512x512",
+      "sizes": "500x500",
       "type": "image/png",
       "purpose": "any maskable"
     }

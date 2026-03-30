@@ -8,7 +8,7 @@ import SplashScreen from "@/components/splash-screen";
 import Onboarding from "@/components/onboarding";
 
 export const metadata: Metadata = {
-  title: "Italianto Dialogue Studio",
+  title: "Dialoghi Studio",
   description: "Genera diálogos escritos y audios en italiano. Aprende italiano con conversaciones reales generadas por IA.",
   keywords: ["italiano", "aprender italiano", "diálogos italiano", "audio italiano", "italianto"],
   authors: [{ name: "Italianto" }],
@@ -16,10 +16,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Dialogue Studio",
+    title: "Dialoghi Studio",
   },
   openGraph: {
-    title: "Italianto Dialogue Studio",
+    title: "Dialoghi Studio",
     description: "Genera diálogos escritos y audios en italiano con IA",
     type: "website",
     siteName: "Italianto",
