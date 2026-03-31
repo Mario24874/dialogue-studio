@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // Build ID único por deploy — fuerza que los chunk hashes cambien en cada build
   // evitando que Netlify CDN sirva archivos de deploys anteriores.
   generateBuildId: async () => `build-${Date.now()}`,
