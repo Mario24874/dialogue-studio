@@ -7,9 +7,9 @@ import Footer from "@/components/layout/footer";
 import { useLanguage } from "@/contexts/language-context";
 
 type Billing = "monthly" | "annual";
-type PlanId = "basic" | "standard" | "pro";
+type PlanId = "essenziale" | "avanzato" | "maestro";
 
-const PLANS: PlanId[] = ["basic", "standard", "pro"];
+const PLANS: PlanId[] = ["essenziale", "avanzato", "maestro"];
 
 export default function PricingPage() {
   const { t, tArray } = useLanguage();
@@ -57,7 +57,7 @@ export default function PricingPage() {
           {/* Cards de planes */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-start">
             {PLANS.map((planId) => {
-              const isPopular = planId === "standard";
+              const isPopular = planId === "avanzato";
               const features = tArray(`plans.${planId}.features`);
               const price = billing === "annual"
                 ? t(`plans.${planId}.priceAnnual`)
