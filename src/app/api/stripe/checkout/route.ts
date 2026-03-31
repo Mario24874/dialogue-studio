@@ -13,16 +13,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const planId: string = body.planId ?? "basic";
-    // Backward compat: body.plan="annual" (old subscribe page)
+    const planId: string = body.planId ?? "essenziale";
     const billing: string =
       body.billing === "annual" || body.plan === "annual" ? "annual" : "monthly";
 
+    // Planes unificados de italianto.com
     const priceMap: Record<string, Record<string, string | undefined>> = {
-      basic:    { monthly: process.env.STRIPE_PRICE_ID_BASIC    || process.env.STRIPE_PRICE_ID_MONTHLY,
-                  annual:  process.env.STRIPE_PRICE_ID_BASIC_ANNUAL || process.env.STRIPE_PRICE_ID_ANNUAL },
-      standard: { monthly: process.env.STRIPE_PRICE_ID_STANDARD_MONTHLY, annual: process.env.STRIPE_PRICE_ID_STANDARD_ANNUAL },
-      pro:      { monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY,       annual: process.env.STRIPE_PRICE_ID_PRO_ANNUAL },
+      essenziale: { monthly: process.env.STRIPE_PRICE_ESSENZIALE_MONTHLY, annual: process.env.STRIPE_PRICE_ESSENZIALE_ANNUAL },
+      avanzato:   { monthly: process.env.STRIPE_PRICE_AVANZATO_MONTHLY,   annual: process.env.STRIPE_PRICE_AVANZATO_ANNUAL },
+      maestro:    { monthly: process.env.STRIPE_PRICE_MAESTRO_MONTHLY,     annual: process.env.STRIPE_PRICE_MAESTRO_ANNUAL },
     };
 
     const priceId = priceMap[planId]?.[billing];

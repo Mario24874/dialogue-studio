@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
           // Detectar plan_type desde el product_id
           const productId = subscription.items.data[0].price.product;
-          const planType = (typeof productId === "string" ? productToPlanType(productId) : null) ?? "basic";
+          const planType = (typeof productId === "string" ? productToPlanType(productId) : null) ?? "essenziale";
 
           // Crear registro de suscripción
           await db.from("subscriptions").upsert({

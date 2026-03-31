@@ -91,7 +91,7 @@ export default function AccountPage() {
               <Sparkles size={36} className="text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-slate-400 mb-6">{t("account.noSub")}</p>
               <Link
-                href="/pricing"
+                href="https://italianto.com/precios"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-italianto-800 text-white font-semibold rounded-xl hover:bg-italianto-900 transition-colors"
               >
                 {t("account.subscribe")}

@@ -14,26 +14,22 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-// Mapeo product_id → plan_type (evaluado en runtime, no en build)
-export function productToPlanType(productId: string): "basic" | "standard" | "pro" | null {
-  if (productId === process.env.STRIPE_PRODUCT_ID_BASIC) return "basic";
-  if (productId === process.env.STRIPE_PRODUCT_ID_STANDARD) return "standard";
-  if (productId === process.env.STRIPE_PRODUCT_ID_PRO) return "pro";
+// Mapeo product_id → plan_type — productos del Stripe unificado de italianto.com
+export function productToPlanType(productId: string): "essenziale" | "avanzato" | "maestro" | null {
+  if (productId === process.env.STRIPE_PRODUCT_ESSENZIALE) return "essenziale";
+  if (productId === process.env.STRIPE_PRODUCT_AVANZATO)   return "avanzato";
+  if (productId === process.env.STRIPE_PRODUCT_MAESTRO)    return "maestro";
   return null;
 }
 
 // Todos los price IDs válidos (evaluado en runtime)
 export function getValidPriceIds(): string[] {
   return [
-    process.env.STRIPE_PRICE_ID_BASIC    || process.env.STRIPE_PRICE_ID_MONTHLY,
-    process.env.STRIPE_PRICE_ID_BASIC_ANNUAL || process.env.STRIPE_PRICE_ID_ANNUAL,
-    process.env.STRIPE_PRICE_ID_STANDARD_MONTHLY,
-    process.env.STRIPE_PRICE_ID_STANDARD_ANNUAL,
-    process.env.STRIPE_PRICE_ID_PRO_MONTHLY,
-    process.env.STRIPE_PRICE_ID_PRO_ANNUAL,
+    process.env.STRIPE_PRICE_ESSENZIALE_MONTHLY,
+    process.env.STRIPE_PRICE_ESSENZIALE_ANNUAL,
+    process.env.STRIPE_PRICE_AVANZATO_MONTHLY,
+    process.env.STRIPE_PRICE_AVANZATO_ANNUAL,
+    process.env.STRIPE_PRICE_MAESTRO_MONTHLY,
+    process.env.STRIPE_PRICE_MAESTRO_ANNUAL,
   ].filter((id): id is string => !!id);
 }
-
-// Precio por defecto (backward compat con código antiguo si hubiera)
-export const STRIPE_PRICE_MONTHLY = process.env.STRIPE_PRICE_ID_BASIC!;
-export const STRIPE_PRICE_ANNUAL = process.env.STRIPE_PRICE_ID_BASIC_ANNUAL!;

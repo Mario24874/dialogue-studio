@@ -124,7 +124,7 @@ export default function PricingPage() {
 
                     {/* CTA */}
                     <Link
-                      href={`/subscribe?billing=${billing}&planId=${planId}`}
+                      href={`https://italianto.com/precios?billing=${billing}&planId=${planId}`}
                       className={`block w-full py-3 text-center font-bold rounded-xl transition-colors ${
                         isPopular
                           ? "bg-white text-italianto-900 hover:bg-italianto-50"

@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
   const { data, error } = await db
     .from("subscriptions")
     .update({
-      dialogues_used_this_month: 0,
-      audio_used_this_month: 0,
+      dialogues_used: 0,
+      audio_used: 0,
       usage_reset_at: new Date().toISOString(),
     })
     .in("status", ["active", "trialing"])
