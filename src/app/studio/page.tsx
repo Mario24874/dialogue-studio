@@ -279,8 +279,8 @@ export default function StudioPage() {
   };
 
   // Permisos de exportación según plan
-  const canExportTxt = quota?.plan_type === "standard" || quota?.plan_type === "pro";
-  const canExportPdf = quota?.plan_type === "pro";
+  const canExportTxt = quota?.plan_type === "avanzato" || quota?.plan_type === "maestro";
+  const canExportPdf = quota?.plan_type === "maestro";
 
   const stepTitles = tArray(studioMode === "generate" ? "studio.stepTitlesDynamic" : "studio.stepTitles");
 
@@ -437,7 +437,7 @@ export default function StudioPage() {
                   </div>
 
                   {/* Selector tipo de diálogo — solo Pro */}
-                  {quota?.plan_type === "pro" && (
+                  {quota?.plan_type === "maestro" && (
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-2">
                         <label className="text-sm font-medium text-gray-700 dark:text-slate-300">{t("studio.step1.dialogueTypeLabel")}</label>
@@ -720,7 +720,7 @@ export default function StudioPage() {
                           <Printer size={15} />
                           {t("studio.step4.exportPdf")}
                         </button>
-                      ) : quota?.plan_type === "standard" && (
+                      ) : quota?.plan_type === "avanzato" && (
                         <span className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 dark:text-slate-500 border border-dashed border-gray-200 dark:border-slate-600 rounded-xl cursor-not-allowed">
                           <Printer size={15} />
                           {t("studio.step4.exportPdf")} — <span className="text-xs">{t("studio.step4.exportPdfPro")}</span>

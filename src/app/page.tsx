@@ -20,9 +20,9 @@ Sofia. Certo, andiamo!`;
 const FEATURE_ICONS = [Globe, Users, FileText, Volume2, BookOpen, Download];
 const FEATURE_KEYS = ["translation", "characters", "written", "audio", "education", "download"];
 const PLANS = [
-  { key: "basic", popular: false },
-  { key: "standard", popular: true },
-  { key: "pro", popular: false },
+  { key: "essenziale", popular: false },
+  { key: "avanzato", popular: true },
+  { key: "maestro", popular: false },
 ];
 
 export default function LandingPage() {

@@ -30,9 +30,9 @@ function ProgressBar({ used, limit }: { used: number; limit: number }) {
 }
 
 const PLAN_COLORS: Record<PlanType, string> = {
-  basic: "bg-gray-100 text-gray-700",
-  standard: "bg-italianto-100 text-italianto-800",
-  pro: "bg-purple-100 text-purple-800",
+  essenziale: "bg-gray-100 text-gray-700",
+  avanzato: "bg-italianto-100 text-italianto-800",
+  maestro: "bg-purple-100 text-purple-800",
 };
 
 export default function AccountPage() {
@@ -109,8 +109,8 @@ export default function AccountPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 mt-2">
-                  <span className={`text-sm font-bold px-3 py-1 rounded-full ${PLAN_COLORS[sub.plan_type ?? "basic"]}`}>
-                    {t(`plans.${sub.plan_type ?? "basic"}.name`)}
+                  <span className={`text-sm font-bold px-3 py-1 rounded-full ${PLAN_COLORS[sub.plan_type ?? "essenziale"]}`}>
+                    {t(`plans.${sub.plan_type ?? "essenziale"}.name`)}
                   </span>
                   {sub.cancel_at_period_end && (
                     <span className="text-xs text-red-500 font-medium">{t("account.canceling")}</span>
@@ -120,7 +120,7 @@ export default function AccountPage() {
 
               {/* Uso este mes */}
               {(() => {
-                const limits = getPlanLimits(sub.plan_type ?? "basic");
+                const limits = getPlanLimits(sub.plan_type ?? "essenziale");
                 const dUnlimited = limits.dialogues === -1;
                 const aUnlimited = limits.audio === -1;
                 return (
