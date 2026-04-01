@@ -106,10 +106,11 @@ export async function POST(req: NextRequest) {
         return true;
       });
 
-    // Generar todo el audio en paralelo (reduce tiempo ~4x vs secuencial)
-    const audioSegments = await Promise.all(
-      lineRequests.map(({ line, voiceId }) => generateSpeech(line.text, voiceId))
-    );
+    // Generar audio secuencialmente para respetar el límite de concurrencia de ElevenLabs
+    const audioSegments: Uint8Array[] = [];
+    for (const { line, voiceId } of lineRequests) {
+      audioSegments.push(await generateSpeech(line.text, voiceId));
+    }
 
     // Intercalar silencio entre líneas (en orden)
     const segments: Uint8Array[] = [];
