@@ -282,6 +282,15 @@
     "privacy": "Informativa sulla Privacy",
     "errorPayment": "Errore nell'avvio del pagamento",
     "errorConnection": "Errore di connessione. Riprova.",
+    "essenziale": {
+      "name": "Essenziale"
+    },
+    "avanzato": {
+      "name": "Avanzato"
+    },
+    "maestro": {
+      "name": "Maestro"
+    },
     "basic": {
       "name": "Base",
       "description": "Per iniziare ad imparare",

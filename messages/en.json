@@ -282,6 +282,15 @@
     "privacy": "Privacy Policy",
     "errorPayment": "Error starting payment",
     "errorConnection": "Connection error. Please try again.",
+    "essenziale": {
+      "name": "Essenziale"
+    },
+    "avanzato": {
+      "name": "Avanzato"
+    },
+    "maestro": {
+      "name": "Maestro"
+    },
     "basic": {
       "name": "Basic",
       "description": "Get started learning",

@@ -280,6 +280,15 @@
     "privacy": "Política de Privacidad",
     "errorPayment": "Error al iniciar el pago",
     "errorConnection": "Error de conexión. Intenta de nuevo.",
+    "essenziale": {
+      "name": "Essenziale"
+    },
+    "avanzato": {
+      "name": "Avanzato"
+    },
+    "maestro": {
+      "name": "Maestro"
+    },
     "basic": {
       "name": "Básico",
       "description": "Para empezar a aprender",
