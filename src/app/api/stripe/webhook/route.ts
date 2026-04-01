@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
   }
 
   const db = createServiceClient();
+  const toISO = (ts: number | null | undefined): string | null =>
+    ts ? new Date(ts * 1000).toISOString() : null;
 
   try {
     switch (event.type) {
@@ -58,8 +60,8 @@ export async function POST(req: NextRequest) {
             status: subscription.status,
             price_id: subscription.items.data[0].price.id,
             plan_type: planType,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: toISO(subscription.current_period_start),
+            current_period_end: toISO(subscription.current_period_end),
             cancel_at_period_end: subscription.cancel_at_period_end,
           }, { onConflict: "id" });
         }
@@ -73,8 +75,8 @@ export async function POST(req: NextRequest) {
         if (clerkUserId) {
           await db.from("subscriptions").update({
             status: subscription.status,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: toISO(subscription.current_period_start),
+            current_period_end: toISO(subscription.current_period_end),
             cancel_at_period_end: subscription.cancel_at_period_end,
           }).eq("id", subscription.id);
         }
