@@ -5,12 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
-  FileText, Mic, ChevronRight, Loader2, Download,
+  FileText, Mic, ChevronRight, Loader2, Moon, Sun,
   Copy, Check, RotateCcw, Volume2, Sparkles, Upload, FileDown, Printer,
   Wand2, PenLine,
 } from "lucide-react";
 import CharacterBuilder, { Character, ELEVENLABS_VOICES } from "@/components/studio/character-builder";
+import AnimatedAudioPlayer from "@/components/studio/animated-audio-player";
 import { useLanguage } from "@/contexts/language-context";
+import { useTheme } from "@/contexts/theme-context";
+import LanguageSelector from "@/components/ui/language-selector";
 import { getPlanLimits, type PlanType } from "@/lib/quota";
 import { DIALOGUE_TYPE_KEYS, type DialogueType } from "@/lib/dialogue-examples";
 
@@ -67,6 +70,7 @@ function playSound(type: "success" | "error") {
 
 export default function StudioPage() {
   const { t, tArray } = useLanguage();
+  const { theme, toggle: toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Cuotas
@@ -300,7 +304,7 @@ export default function StudioPage() {
             <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
             <span className="font-bold text-italianto-800 dark:text-italianto-400 text-sm">Dialoghi Studio</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {quota && (() => {
               const limits = getPlanLimits(quota.plan_type);
               const dLabel = limits.dialogues === -1 ? "\u221e" : `${quota.dialogues_used}/${limits.dialogues}`;
@@ -318,6 +322,14 @@ export default function StudioPage() {
                 </Link>
               );
             })()}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label={theme === "dark" ? "Modo claro" : "Modo oscuro"}
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <LanguageSelector />
             {hasClerk && <StudioUser />}
           </div>
         </div>
@@ -733,24 +745,13 @@ export default function StudioPage() {
 
               {/* Resultado audio */}
               {audioSrc && (
-                <div className="space-y-4">
-                  <div className="bg-italianto-50 dark:bg-slate-700 border border-italianto-100 dark:border-slate-600 rounded-xl p-4">
-                    <p className="text-sm font-medium text-italianto-800 dark:text-italianto-300 mb-3 flex items-center gap-2">
-                      <Volume2 size={16} />
-                      {t("studio.step4.audioTitle")}
-                    </p>
-                    <audio controls src={audioSrc} className="w-full">
-                      {t("studio.step4.audioNotSupported")}
-                    </audio>
-                  </div>
-                  <button
-                    onClick={downloadAudio}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-italianto-800 text-white font-semibold rounded-xl hover:bg-italianto-900 transition-colors"
-                  >
-                    <Download size={18} />
-                    {t("studio.step4.downloadMp3")}
-                  </button>
-                </div>
+                <AnimatedAudioPlayer
+                  audioSrc={audioSrc}
+                  characters={characters}
+                  onDownload={downloadAudio}
+                  downloadLabel={t("studio.step4.downloadMp3")}
+                  audioTitle={t("studio.step4.audioTitle")}
+                />
               )}
             </div>
           )}
