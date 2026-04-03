@@ -27,7 +27,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={48} height={48} className="rounded-xl opacity-90" />
-              <span className="font-bold text-lg">Dialogue Studio</span>
+              <span className="font-bold text-lg">Dialoghi Studio</span>
             </div>
             <p className="text-italianto-200 text-sm leading-relaxed mb-4">
               {t("footer.tagline")}

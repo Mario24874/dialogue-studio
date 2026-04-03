@@ -1,12 +1,12 @@
 import LegalLayout from "@/components/layout/legal-layout";
 
 export const metadata = {
-  title: "Política de Cookies | Italianto Dialogue Studio",
+  title: "Política de Cookies | Italianto Dialoghi Studio",
 };
 
 export default function CookiesPage() {
   return (
-    <LegalLayout title="Política de Cookies" subtitle="Italianto Dialogue Studio" lastUpdated="1 de marzo de 2026">
+    <LegalLayout title="Política de Cookies" subtitle="Italianto Dialoghi Studio" lastUpdated="1 de marzo de 2026">
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">¿Qué son las cookies?</h2>
         <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas nuestra aplicación. Nos ayudan a recordar tus preferencias y mejorar tu experiencia.</p>

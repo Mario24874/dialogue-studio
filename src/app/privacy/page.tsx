@@ -1,19 +1,19 @@
 import LegalLayout from "@/components/layout/legal-layout";
 
 export const metadata = {
-  title: "Política de Privacidad | Italianto Dialogue Studio",
+  title: "Política de Privacidad | Italianto Dialoghi Studio",
 };
 
 export default function PrivacyPage() {
   return (
     <LegalLayout
       title="Política de Privacidad"
-      subtitle="Italianto Dialogue Studio"
+      subtitle="Italianto Dialoghi Studio"
       lastUpdated="1 de marzo de 2026"
     >
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">1. Información que recopilamos</h2>
-        <p>Al usar Italianto Dialogue Studio (&ldquo;el Servicio&rdquo;), recopilamos los siguientes tipos de información:</p>
+        <p>Al usar Italianto Dialoghi Studio (&ldquo;el Servicio&rdquo;), recopilamos los siguientes tipos de información:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1 text-sm">
           <li><strong>Información de cuenta:</strong> nombre, dirección de correo electrónico y datos de autenticación proporcionados a través de Clerk.</li>
           <li><strong>Información de pago:</strong> procesada de forma segura por Stripe. No almacenamos datos de tarjetas de crédito.</li>

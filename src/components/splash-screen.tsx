@@ -97,7 +97,7 @@ export default function SplashScreen() {
       >
         <Image
           src="/Logo_ItaliAnto.png"
-          alt="Dialogue Studio"
+          alt="Dialoghi Studio"
           width={160}
           height={160}
           priority
@@ -112,7 +112,7 @@ export default function SplashScreen() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.85, ease: "easeOut" }}
       >
-        Dialogue Studio
+        Dialoghi Studio
       </motion.p>
 
       <motion.p

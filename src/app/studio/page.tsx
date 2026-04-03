@@ -259,7 +259,7 @@ export default function StudioPage() {
 </style>
 </head>
 <body>
-<h1>\uD83C\uDDEE\uD83C\uDDF9 Dialogo in Italiano &mdash; Italianto Dialogue Studio</h1>
+<h1>\uD83C\uDDEE\uD83C\uDDF9 Dialogo in Italiano &mdash; Italianto Dialoghi Studio</h1>
 <p>${date}</p>
 <pre>${writtenResult.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
 </body>
@@ -298,7 +298,7 @@ export default function StudioPage() {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
-            <span className="font-bold text-italianto-800 dark:text-italianto-400 text-sm">Dialogue Studio</span>
+            <span className="font-bold text-italianto-800 dark:text-italianto-400 text-sm">Dialoghi Studio</span>
           </Link>
           <div className="flex items-center gap-3">
             {quota && (() => {

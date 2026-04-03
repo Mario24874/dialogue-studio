@@ -1,24 +1,24 @@
 import LegalLayout from "@/components/layout/legal-layout";
 
 export const metadata = {
-  title: "Términos y Condiciones | Italianto Dialogue Studio",
+  title: "Términos y Condiciones | Italianto Dialoghi Studio",
 };
 
 export default function TermsPage() {
   return (
     <LegalLayout
       title="Términos y Condiciones"
-      subtitle="Italianto Dialogue Studio"
+      subtitle="Italianto Dialoghi Studio"
       lastUpdated="1 de marzo de 2026"
     >
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">1. Aceptación de los términos</h2>
-        <p>Al acceder y usar Italianto Dialogue Studio (&ldquo;el Servicio&rdquo;), aceptas estar sujeto a estos Términos y Condiciones. Si no estás de acuerdo con alguna parte, no puedes usar el Servicio.</p>
+        <p>Al acceder y usar Italianto Dialoghi Studio (&ldquo;el Servicio&rdquo;), aceptas estar sujeto a estos Términos y Condiciones. Si no estás de acuerdo con alguna parte, no puedes usar el Servicio.</p>
       </section>
 
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">2. Descripción del Servicio</h2>
-        <p>Italianto Dialogue Studio es una aplicación web y móvil que permite a los usuarios generar diálogos en italiano mediante inteligencia artificial a partir de textos en español o inglés. El Servicio incluye:</p>
+        <p>Italianto Dialoghi Studio es una aplicación web y móvil que permite a los usuarios generar diálogos en italiano mediante inteligencia artificial a partir de textos en español o inglés. El Servicio incluye:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1 text-sm">
           <li>Traducción automática al italiano mediante IA.</li>
           <li>Generación de diálogos escritos formateados.</li>
