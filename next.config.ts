@@ -13,8 +13,10 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   images: {
-    // Permite cargar imágenes desde el propio dominio
-    remotePatterns: [],
+    // unoptimized=true porque el app corre detrás de un proxy inverso (italianto.com/studio).
+    // Next.js standalone intenta hacer self-fetch usando el host header del request (italianto.com)
+    // en vez de localhost, por lo que la optimización falla con "received null".
+    unoptimized: true,
   },
   // Headers de seguridad adicionales
   async headers() {
