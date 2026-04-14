@@ -32,7 +32,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 h-[72px] flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={60} height={60} className="rounded-xl" />
+          <Image src="/studio/Logo_ItaliAnto.png" alt="Italianto" width={60} height={60} className="rounded-xl" />
           <span className="hidden sm:block font-bold text-italianto-800 dark:text-italianto-400 text-lg leading-tight">
             Dialoghi Studio
           </span>

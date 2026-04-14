@@ -301,7 +301,7 @@ export default function StudioPage() {
       <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
+            <Image src="/studio/Logo_ItaliAnto.png" alt="Italianto" width={28} height={28} className="rounded-md" />
             <span className="font-bold text-italianto-800 dark:text-italianto-400 text-sm">Dialoghi Studio</span>
           </Link>
           <div className="flex items-center gap-2">

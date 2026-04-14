@@ -96,7 +96,7 @@ export default function SplashScreen() {
         }
       >
         <Image
-          src="/Logo_ItaliAnto.png"
+          src="/studio/Logo_ItaliAnto.png"
           alt="Dialoghi Studio"
           width={160}
           height={160}

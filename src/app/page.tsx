@@ -39,7 +39,7 @@ export default function LandingPage() {
         <section className="relative text-white overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="/coliseo.jpg"
+              src="/studio/coliseo.jpg"
               alt="Coliseo Romano"
               fill
               className="object-cover object-center"
@@ -68,13 +68,13 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link
+                <a
                   href="https://italianto.com/precios"
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-italianto-900 font-semibold rounded-xl hover:bg-italianto-50 transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
                   <Sparkles size={18} />
                   {t("landing.hero.cta")}
-                </Link>
+                </a>
                 <Link
                   href="/#features"
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 border border-white/30 font-semibold rounded-xl hover:bg-white/20 transition-all duration-200"
@@ -168,13 +168,13 @@ export default function LandingPage() {
               {t("landing.pricing.title")}
             </h2>
             <p className="text-gray-600 dark:text-slate-400 mb-8">{t("landing.pricing.subtitle")}</p>
-            <Link
+            <a
               href="https://italianto.com/precios"
               className="inline-flex items-center gap-2 px-8 py-4 bg-italianto-800 text-white font-bold rounded-xl hover:bg-italianto-900 transition-colors text-lg shadow-lg"
             >
               <Sparkles size={20} />
               {t("plans.cta")}
-            </Link>
+            </a>
             <p className="text-xs text-gray-400 dark:text-slate-500 mt-6">{t("plans.stripe")}</p>
           </div>
         </section>
@@ -188,13 +188,13 @@ export default function LandingPage() {
             <p className="text-italianto-200 mb-8">
               {t("landing.cta.subtitle")}
             </p>
-            <Link
+            <a
               href="https://italianto.com/precios"
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-italianto-900 font-bold rounded-xl hover:bg-italianto-50 transition-all duration-200 shadow-lg text-lg"
             >
               <Sparkles size={20} />
               {t("landing.cta.button")}
-            </Link>
+            </a>
           </div>
         </section>
       </main>

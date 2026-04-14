@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <LegalLayout title={t("about.title")} subtitle={t("about.subtitle")}>
       <div className="flex items-center gap-4 p-6 bg-italianto-50 rounded-2xl border border-italianto-100 mb-6 not-prose">
-        <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={64} height={64} className="rounded-xl" />
+        <Image src="/studio/Logo_ItaliAnto.png" alt="Italianto" width={64} height={64} className="rounded-xl" />
         <div>
           <h2 className="text-xl font-bold text-italianto-900">Italianto</h2>
           <p className="text-italianto-700 text-sm">{t("about.tagline")}</p>

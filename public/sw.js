@@ -2,8 +2,12 @@
 // Propósito: habilitar PWA installability (beforeinstallprompt en Chrome Android)
 // y cache básico del shell para carga offline.
 
-const CACHE_NAME = "italianto-v1";
-const PRECACHE = ["/", "/manifest.json", "/Logo_ItaliAnto.png"];
+const CACHE_NAME = "italianto-studio-v2";
+const PRECACHE = [
+  "/studio/",
+  "/studio/manifest.json",
+  "/studio/Logo_ItaliAnto.png",
+];
 
 // ─── Install: pre-cachear recursos estáticos del shell ────────────────────────
 self.addEventListener("install", (event) => {
@@ -31,7 +35,10 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
 
-  // Nunca interceptar: llamadas a API, Clerk, Stripe, ElevenLabs
+  // Solo interceptar HTTP/HTTPS
+  if (url.protocol !== "https:" && url.protocol !== "http:") return;
+
+  // Nunca interceptar: llamadas a API, Clerk, Stripe, ElevenLabs, Supabase
   if (
     url.pathname.startsWith("/api/") ||
     url.hostname.includes("clerk") ||

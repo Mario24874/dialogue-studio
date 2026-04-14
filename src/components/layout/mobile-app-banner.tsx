@@ -91,7 +91,7 @@ export default function MobileAppBanner() {
         <div className="h-1" style={{ background: "linear-gradient(90deg, #009246 33%, #ffffff 33% 66%, #ce2b37 66%)" }} />
 
         <div className="flex items-center gap-3 p-4">
-          <Image src="/Logo_ItaliAnto.png" alt="Italianto" width={44} height={44} className="rounded-xl flex-shrink-0" />
+          <Image src="/studio/Logo_ItaliAnto.png" alt="Italianto" width={44} height={44} className="rounded-xl flex-shrink-0" />
 
           <div className="flex-1 min-w-0">
             <p className="font-bold text-sm text-gray-900 dark:text-white truncate">

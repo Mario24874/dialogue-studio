@@ -100,7 +100,7 @@ export default function Onboarding() {
   const currentColor = SLIDE_COLORS[current];
 
   const slideIcons = [
-    <Image key="logo" src="/Logo_ItaliAnto.png" alt="Italianto" width={96} height={96} className="rounded-2xl" priority />,
+    <Image key="logo" src="/studio/Logo_ItaliAnto.png" alt="Italianto" width={96} height={96} className="rounded-2xl" priority />,
     <PenLine key="pen" size={80} className="text-white" />,
     <Wand2 key="wand" size={80} className="text-white" />,
     <Volume2 key="vol" size={80} className="text-white" />,
