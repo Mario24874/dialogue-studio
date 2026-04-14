@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${APP_URL}/studio?subscribed=true`,
-      cancel_url: `${APP_URL}/pricing?canceled=true`,
+      cancel_url: `${APP_URL}/studio/pricing?canceled=true`,
       metadata: { clerk_user_id: userId, plan_id: planId, billing },
       subscription_data: {
         metadata: { clerk_user_id: userId, plan_id: planId, billing },

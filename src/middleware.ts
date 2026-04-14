@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 // Rutas públicas — no requieren autenticación
 const isPublicRoute = createRouteMatcher([
@@ -10,12 +11,21 @@ const isPublicRoute = createRouteMatcher([
   "/privacy",
   "/terms",
   "/cookies",
-  "/manifest.json",        // PWA manifest — archivo estático público
-  "/api/stripe/webhook",   // Stripe necesita acceso sin sesión
-  "/api/clerk/webhook",    // Clerk necesita acceso sin sesión
+  "/manifest.json",
+  "/api/stripe/webhook",
+  "/api/clerk/webhook",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const host = req.headers.get("host") || "";
+
+  // Redirigir studio.italianto.com → italianto.com/studio
+  // para que la sesión de Clerk sea compartida bajo el mismo dominio
+  if (host === "studio.italianto.com") {
+    const path = req.nextUrl.pathname + req.nextUrl.search;
+    return NextResponse.redirect(`https://italianto.com/studio${path}`, 301);
+  }
+
   if (!isPublicRoute(req)) await auth.protect();
 });
 
