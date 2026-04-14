@@ -37,11 +37,11 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#2e7d32" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="apple-touch-icon" href="/Logo_ItaliAnto.png" />
+        <link rel="apple-touch-icon" href="/studio/Logo_ItaliAnto.png" />
         {/* Prevent dark mode flash on reload */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');})();` }} />
         {/* Register Service Worker for PWA installability */}
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/studio/sw.js',{scope:'/studio/'});});}` }} />
       </head>
       <body data-v="3">
         <ThemeProvider>
