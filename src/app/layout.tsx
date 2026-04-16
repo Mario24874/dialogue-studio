@@ -60,7 +60,16 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/studio/sw.js',{scope:'/studio/'});});}` }} />
       </head>
       <body data-v="4">
-        {HAS_CLERK ? <ClerkProvider>{inner}</ClerkProvider> : inner}
+        {HAS_CLERK ? (
+          <ClerkProvider
+            signInUrl="/studio/sign-in"
+            signUpUrl="/studio/sign-up"
+            signInFallbackRedirectUrl="/studio/studio"
+            signUpFallbackRedirectUrl="/studio/studio"
+          >
+            {inner}
+          </ClerkProvider>
+        ) : inner}
       </body>
     </html>
   );
