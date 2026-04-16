@@ -1,4 +1,4 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignIn, ClerkLoading, ClerkLoaded } from "@clerk/nextjs";
 import Image from "next/image";
 import Header from "@/components/layout/header";
 
@@ -12,7 +12,17 @@ export default function SignInPage() {
             <Image src="/studio/Logo_ItaliAnto.png" alt="Italianto" width={48} height={48} className="rounded-xl" />
             <span className="text-2xl font-bold text-italianto-800 dark:text-italianto-400">Italianto</span>
           </div>
-          <SignIn />
+          <ClerkLoading>
+            <div className="w-72 space-y-3 animate-pulse">
+              <div className="h-10 rounded-xl bg-italianto-100 dark:bg-italianto-900/40 w-full" />
+              <div className="h-10 rounded-xl bg-italianto-100 dark:bg-italianto-900/40 w-full" />
+              <div className="h-10 rounded-xl bg-italianto-100 dark:bg-italianto-900/40 w-full" />
+              <div className="h-12 rounded-xl bg-italianto-600/30 w-full" />
+            </div>
+          </ClerkLoading>
+          <ClerkLoaded>
+            <SignIn />
+          </ClerkLoaded>
         </div>
       </div>
     </div>
