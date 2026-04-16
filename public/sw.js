@@ -1,14 +1,14 @@
 // Service Worker — Italianto Dialogue Studio
-// Propósito: habilitar PWA installability (beforeinstallprompt en Chrome Android)
-// y cache básico del shell para carga offline.
+// v4: Never cache navigation requests (HTML pages).
+// Prevents stale HTML causing "old chunk" errors after redeploys.
 
-const CACHE_NAME = "italianto-studio-v3";
+const CACHE_NAME = "italianto-studio-v4";
 const PRECACHE = [
   "/studio/manifest.json",
   "/studio/Logo_ItaliAnto.png",
 ];
 
-// ─── Install: pre-cachear recursos estáticos del shell ────────────────────────
+// ─── Install ──────────────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE))
@@ -16,7 +16,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// ─── Activate: limpiar caches viejos ─────────────────────────────────────────
+// ─── Activate: delete old caches ─────────────────────────────────────────────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -28,16 +28,20 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// ─── Fetch: Network-first para APIs y auth; Cache-first para assets estáticos ─
+// ─── Fetch ────────────────────────────────────────────────────────────────────
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Solo interceptar HTTP/HTTPS
   if (url.protocol !== "https:" && url.protocol !== "http:") return;
 
-  // Nunca interceptar: llamadas a API, Clerk, Stripe, ElevenLabs, Supabase
+  // CRITICAL: Never intercept navigation (HTML page loads).
+  // HTML references Next.js chunk hashes that change on every deploy.
+  // Serving cached HTML after a redeploy causes "chunk not found" errors.
+  if (event.request.mode === "navigate") return;
+
+  // Never intercept: API calls, auth, payment, media services
   if (
     url.pathname.startsWith("/api/") ||
     url.hostname.includes("clerk") ||
@@ -48,17 +52,43 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Para todo lo demás: network-first con fallback a cache
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Guardar copia en cache si la respuesta es válida
-        if (response && response.status === 200 && response.type === "basic") {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
+  // Only cache Next.js static assets — immutable (chunk hash in filename)
+  if (url.pathname.startsWith("/studio/_next/static/")) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((res) => {
+          if (res.ok && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(event.request, clone));
+          }
+          return res;
+        });
       })
-      .catch(() => caches.match(event.request))
-  );
+    );
+    return;
+  }
+
+  // Static public assets: network-first, cache fallback
+  if (
+    url.pathname.startsWith("/studio/Logo_ItaliAnto.png") ||
+    url.pathname === "/studio/manifest.json" ||
+    url.pathname === "/studio/favicon.ico"
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          if (res.ok && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(event.request, clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  }
+});
+
+self.addEventListener("message", (e) => {
+  if (e.data === "SKIP_WAITING") self.skipWaiting();
 });
