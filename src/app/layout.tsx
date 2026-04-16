@@ -35,7 +35,18 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const body = (
+  const inner = (
+    <ThemeProvider>
+      <LanguageProvider>
+        <SplashScreen />
+        <Onboarding />
+        {children}
+        <MobileAppBanner />
+      </LanguageProvider>
+    </ThemeProvider>
+  );
+
+  return (
     <html lang="es" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#2e7d32" />
@@ -49,17 +60,8 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/studio/sw.js',{scope:'/studio/'});});}` }} />
       </head>
       <body data-v="4">
-        <ThemeProvider>
-          <LanguageProvider>
-            <SplashScreen />
-            <Onboarding />
-            {children}
-            <MobileAppBanner />
-          </LanguageProvider>
-        </ThemeProvider>
+        {HAS_CLERK ? <ClerkProvider>{inner}</ClerkProvider> : inner}
       </body>
     </html>
   );
-
-  return HAS_CLERK ? <ClerkProvider>{body}</ClerkProvider> : body;
 }
