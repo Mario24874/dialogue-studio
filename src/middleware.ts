@@ -26,7 +26,10 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(`https://italianto.com/studio${path}`, 301);
   }
 
-  if (!isPublicRoute(req)) await auth.protect();
+  if (!isPublicRoute(req)) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://italianto.com'
+    await auth.protect({ unauthenticatedUrl: `${appUrl}/studio/sign-in` })
+  }
 });
 
 export const config = {

@@ -2,9 +2,8 @@
 // Propósito: habilitar PWA installability (beforeinstallprompt en Chrome Android)
 // y cache básico del shell para carga offline.
 
-const CACHE_NAME = "italianto-studio-v2";
+const CACHE_NAME = "italianto-studio-v3";
 const PRECACHE = [
-  "/studio/",
   "/studio/manifest.json",
   "/studio/Logo_ItaliAnto.png",
 ];

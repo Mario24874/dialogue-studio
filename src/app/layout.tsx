@@ -27,37 +27,34 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const HAS_CLERK = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const html = (
-    <html lang="es">
-      <head>
-        <meta name="theme-color" content="#2e7d32" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="apple-touch-icon" href="/studio/Logo_ItaliAnto.png" />
-        {/* Prevent dark mode flash on reload */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');})();` }} />
-        {/* Register Service Worker for PWA installability */}
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/studio/sw.js',{scope:'/studio/'});});}` }} />
-      </head>
-      <body data-v="3">
-        <ThemeProvider>
-          <LanguageProvider>
-            <SplashScreen />
-            <Onboarding />
-            {children}
-            <MobileAppBanner />
-          </LanguageProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+  return (
+    <ClerkProvider>
+      <html lang="es">
+        <head>
+          <meta name="theme-color" content="#2e7d32" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <link rel="apple-touch-icon" href="/studio/Logo_ItaliAnto.png" />
+          {/* Prevent dark mode flash on reload */}
+          <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(t==='dark')document.documentElement.classList.add('dark');})();` }} />
+          {/* Register Service Worker for PWA installability */}
+          <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/studio/sw.js',{scope:'/studio/'});});}` }} />
+        </head>
+        <body data-v="3">
+          <ThemeProvider>
+            <LanguageProvider>
+              <SplashScreen />
+              <Onboarding />
+              {children}
+              <MobileAppBanner />
+            </LanguageProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
-
-  // Importación estática garantiza que ClerkProvider esté en el bundle del cliente
-  // y que el contexto React de Clerk se inicialice correctamente en hidratación.
-  if (HAS_CLERK) return <ClerkProvider>{html}</ClerkProvider>;
-  return html;
 }
