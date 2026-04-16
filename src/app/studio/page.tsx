@@ -228,11 +228,16 @@ export default function StudioPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const downloadAudio = () => {
+  const downloadAudio = async () => {
+    // Use Blob + createObjectURL instead of data URI — data URIs are broken on iOS/Android
+    const res = await fetch(audioSrc);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = audioSrc;
+    a.href = url;
     a.download = `dialogo_italiano_${Date.now()}.mp3`;
     a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const exportTxt = () => {
