@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+
+const STRINGS = {
+  es: { title: "Algo salió mal", body: "Se produjo un error al cargar la aplicación. Intenta recargar la página.", retry: "Reintentar" },
+  it: { title: "Qualcosa è andato storto", body: "Si è verificato un errore durante il caricamento. Prova a ricaricare la pagina.", retry: "Riprova" },
+  en: { title: "Something went wrong", body: "An error occurred while loading the application. Try reloading the page.", retry: "Retry" },
+};
 
 export default function Error({
   error,
@@ -10,8 +16,14 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [strings, setStrings] = useState(STRINGS.es);
+
   useEffect(() => {
     console.error("[Dialoghi Studio] Client error:", error);
+    try {
+      const lang = localStorage.getItem("italianto_lang") as keyof typeof STRINGS | null;
+      if (lang && STRINGS[lang]) setStrings(STRINGS[lang]);
+    } catch {}
   }, [error]);
 
   return (
@@ -24,16 +36,16 @@ export default function Error({
         className="rounded-2xl mb-6"
       />
       <h1 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-        Algo salió mal
+        {strings.title}
       </h1>
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-6 max-w-xs">
-        Se produjo un error al cargar la aplicación. Intenta recargar la página.
+        {strings.body}
       </p>
       <button
         onClick={reset}
         className="px-5 py-2.5 bg-italianto-800 text-white text-sm font-semibold rounded-xl hover:bg-italianto-900 transition-colors"
       >
-        Reintentar
+        {strings.retry}
       </button>
     </div>
   );

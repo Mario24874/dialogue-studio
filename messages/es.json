@@ -178,6 +178,8 @@
     "periodAnnual": "/año",
     "cancelMonthly": "Cancela cuando quieras",
     "cancelAnnual": "Un solo pago anual",
+    "period": "/ mes",
+    "cancel": "Cancela cuando quieras. Sin permanencia.",
     "features": [
       "Traducción automática al italiano con IA",
       "Diálogos escritos con formato profesional",
