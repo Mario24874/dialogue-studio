@@ -34,7 +34,7 @@ export default function AboutPage() {
       <section>
         <h2 className="text-xl font-bold text-gray-900 mb-3">{t("about.contactTitle")}</h2>
         <p>{t("about.contactText")}<br />
-        <strong>Email:</strong> italiantonline@gmail.com
+        <strong>Email:</strong> info@italianto.com
         </p>
       </section>
     </LegalLayout>
