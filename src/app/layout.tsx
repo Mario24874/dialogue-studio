@@ -7,6 +7,7 @@ import MobileAppBanner from "@/components/layout/mobile-app-banner";
 import SplashScreen from "@/components/splash-screen";
 import Onboarding from "@/components/onboarding";
 import { CookieCheck } from "@/components/cookie-check";
+import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 
 // Only render ClerkProvider when the publishable key is available.
 // Without it, @clerk/nextjs v6 throws "Missing publishableKey" which
@@ -39,6 +40,7 @@ export default function RootLayout({
   const inner = (
     <ThemeProvider>
       <LanguageProvider>
+        <PageViewTracker />
         <CookieCheck />
         <SplashScreen />
         <Onboarding />
